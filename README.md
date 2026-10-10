@@ -1,0 +1,60 @@
+# Sift
+
+A native macOS app for viewing Fujifilm photos straight off an SD card, culling them (pick / reject), and importing only the picks. After a verified import it offers to delete the imported photos from the card. It never formats the card.
+
+Requires macOS 26 (Tahoe) on Apple silicon. Apple frameworks only, no dependencies.
+
+## Build and run
+
+Open `Sift.xcodeproj` in Xcode 27 and run the **Sift** scheme, or:
+
+```sh
+xcodebuild -project Sift.xcodeproj -scheme Sift -derivedDataPath build/DerivedData build
+open build/DerivedData/Build/Products/Debug/Sift.app
+xcodebuild -project Sift.xcodeproj -scheme Sift -derivedDataPath build/DerivedData test
+```
+
+Insert a card and Sift comes forward and opens it. A card is any removable volume with a `DCIM/` folder. You can also use **File › Open Folder…** (⌘O) to browse any folder.
+
+## Keys
+
+| Key | Action |
+|---|---|
+| P / X / U | pick / reject / clear |
+| Space or Return | open large view; Space again returns to the grid |
+| ← → | previous / next photo |
+| ↑ ↓ | move by row in the grid |
+| Z | Fit / 100% in the large view |
+| Esc | back to grid / dismiss sheet |
+| ⌘= / ⌘- | bigger / smaller thumbnails |
+| ⌘I | import picks |
+| ⌘E | eject card |
+
+Mouse: click a thumbnail to select it, click the selected one again to cycle its flag (none → pick → reject), double-click to view it large.
+
+## How it works
+
+- **Scanning** walks `DCIM/*/`, pairs `DSCF4503.RAF` with `DSCF4503.JPG` (case-insensitive), and skips macOS `._` files.
+- **Previews** come from whichever camera-rendered JPEG is fewer bytes to read: the JPG sibling or the preview embedded in the RAF. On an X-E5 the embedded preview is about a third the size of the JPG, so it loads about 2.5× faster. RAW is only decoded (with `CIRAWFilter`) for 100% zoom. At most 4 reads run at once, and reads for cells that scroll away are cancelled.
+- **Flags and import records** live in `~/Library/Application Support/Sift/cards/<volume UUID>.json`, so they survive eject and reinsert.
+- **Import** copies each file to a hidden `.<name>.sift-partial`, hashes what it read from the card and what landed on disk (SHA-256, read back past the page cache), retries once on a mismatch, then renames the file into place and keeps the original dates. If a file with the same name and contents already exists, it is counted as already imported. A different file with the same name gets a `-1`, `-2` suffix.
+- **Delete from card** only removes source files whose copies were verified in that import (plus rejects, if you tick the box). It skips any file whose size changed since it was copied. It uses `removeItem`, not the Trash, so the space is freed on the card.
+
+## Notes
+
+- **App Sandbox is off** (personal app): Sift needs to read any removable volume and write to any folder you choose. Hardened runtime is on for Release builds. It is off for Debug so the hosted unit tests can load into the app.
+- macOS asks once for permission to read removable volumes.
+- "Open folder in Lightroom" appears only when Lightroom Classic is installed.
+- Debug builds accept `-open <folder>` to open a folder at launch. `-snapshots <dir>` walks the main screens and saves a PNG of each. Glass is drawn flat in snapshots because the capture can't render it.
+
+## Layout
+
+```
+Sift/
+  SiftApp.swift
+  Models/     AppModel, CardSession, ImportFlow, Photo, Flag, ImportRecord
+  Services/   VolumeWatcher, CardScanner, PreviewLoader, ExifReader, Importer, CardStore
+  Views/      RootView, BrowseView, SidebarView, GridView, LoupeView, ImportSheet, ImportProgressView
+  Support/    KeyCommands, Theme, DebugSnapshots
+SiftTests/    CardScannerTests, ImporterTests, CardStoreTests
+```
