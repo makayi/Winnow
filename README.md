@@ -16,6 +16,16 @@ xcodebuild -project Sift.xcodeproj -scheme Sift -derivedDataPath build/DerivedDa
 
 Insert a card and Sift comes forward and opens it. A card is any removable volume with a `DCIM/` folder. You can also use **File › Open Folder…** (⌘O) to browse any folder.
 
+## Look
+
+Sift follows the system appearance (light or dark) and uses Apple's own containers, so Liquid Glass comes from the system:
+- `NavigationSplitView` for the sidebar
+- the unified window toolbar
+- `.inspector` for photo info in the large view
+- a standard sheet with a grouped `Form` for import
+
+Custom glass (`glassEffect`) is only used for Sift's own floating controls: the key-hint pill, the filmstrip and the previous / next buttons. Badges on the photos themselves are solid, because Apple reserves glass for controls that float above content.
+
 ## Keys
 
 | Key | Action |
@@ -45,7 +55,7 @@ Mouse: click a thumbnail to select it, click the selected one again to cycle its
 - **App Sandbox is off** (personal app): Sift needs to read any removable volume and write to any folder you choose. Hardened runtime is on for Release builds. It is off for Debug so the hosted unit tests can load into the app.
 - macOS asks once for permission to read removable volumes.
 - "Open folder in Lightroom" appears only when Lightroom Classic is installed.
-- Debug builds accept `-open <folder>` to open a folder at launch. `-snapshots <dir>` walks the main screens and saves a PNG of each. Glass is drawn flat in snapshots because the capture can't render it.
+- Debug builds accept `-open <folder>` to open a folder at launch. `-snapshots <dir>` walks the main screens and saves a PNG of each. Add `-appearance light` or `-appearance dark` to pick a mode. The capture can't render system glass, so custom glass is drawn flat and the sidebar and toolbar look wrong in snapshots.
 
 ## Layout
 

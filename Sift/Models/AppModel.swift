@@ -1,5 +1,6 @@
 import AppKit
 import Observation
+import SwiftUI
 
 enum ViewMode { case grid, loupe }
 
@@ -13,6 +14,12 @@ final class AppModel {
     var mode: ViewMode = .grid
     var zoomed = false
     var importFlow: ImportFlow?
+    var columnVisibility: NavigationSplitViewVisibility = .all
+    /// Whether the loupe's info inspector is showing. Only ever true in the loupe.
+    var inspectorPresented = false
+    /// The user's choice for the inspector, remembered between visits to the loupe.
+    @ObservationIgnored private var wantsInspector = true
+    @ObservationIgnored private var visibilityBeforeLoupe: NavigationSplitViewVisibility = .all
     var gridColumns = 1
     var ejectError: String?
     /// The last folder opened with File > Open Folder, so it stays in the source picker.
@@ -44,7 +51,7 @@ final class AppModel {
     func open(_ source: SourceInfo) {
         if session?.source == source && session?.isEjected == false { return }
         if source.kind == .folder { openedFolder = source }
-        mode = .grid
+        if mode == .loupe { closeLoupe() }
         zoomed = false
         let session = CardSession(source: source, store: store, previews: previews)
         self.session = session
@@ -80,7 +87,7 @@ final class AppModel {
     func leaveEjectedSession() {
         guard session?.isEjected == true else { return }
         session = nil
-        mode = .grid
+        if mode == .loupe { closeLoupe() }
         if let next = sources.first { open(next) }
     }
 
@@ -106,14 +113,26 @@ final class AppModel {
     // MARK: Loupe
 
     func openLoupe() {
-        guard let session, session.selected != nil else { return }
+        guard let session, session.selected != nil, mode != .loupe else { return }
         zoomed = false
         mode = .loupe
+        // The photo gets the whole window; the sidebar comes back with the grid.
+        visibilityBeforeLoupe = columnVisibility
+        columnVisibility = .detailOnly
+        inspectorPresented = wantsInspector
+    }
+
+    func toggleInspector() {
+        inspectorPresented.toggle()
+        wantsInspector = inspectorPresented
     }
 
     func closeLoupe() {
+        guard mode == .loupe else { return }
         zoomed = false
+        inspectorPresented = false
         mode = .grid
+        columnVisibility = visibilityBeforeLoupe
     }
 
     // MARK: Import

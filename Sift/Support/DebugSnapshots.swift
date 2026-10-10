@@ -1,5 +1,6 @@
 #if DEBUG
 import AppKit
+import SwiftUI
 
 /// Debug-only: `Sift -open <folder> -snapshots <dir>` walks through the main screens and
 /// writes a PNG of the window after each step, for checking layout without a human at the screen.
@@ -8,6 +9,11 @@ enum DebugSnapshots {
     static func runIfRequested(app: AppModel) {
         guard let dir = UserDefaults.standard.string(forKey: "snapshots") else { return }
         let out = URL(fileURLWithPath: dir, isDirectory: true)
+        switch UserDefaults.standard.string(forKey: "appearance") {
+        case "light": NSApp.appearance = NSAppearance(named: .aqua)
+        case "dark": NSApp.appearance = NSAppearance(named: .darkAqua)
+        default: break
+        }
         try? FileManager.default.createDirectory(at: out, withIntermediateDirectories: true)
         let steps: [(String, () -> Void)] = [
             ("1-grid", {}),
@@ -33,14 +39,27 @@ enum DebugSnapshots {
             ]
         }
         Task {
+            NSApp.activate()
+            NSApp.windows.first(where: \.isVisible)?.makeKeyAndOrderFront(nil)
             try? await Task.sleep(for: .seconds(4))
             for (name, action) in steps + importSteps {
-                action()
-                try? await Task.sleep(for: .seconds(name == "7-copying" ? 0.6 : 2.5))
+                // A window that isn't frontmost may not run split-view animations; snapshot final states.
+                var transaction = Transaction()
+                transaction.disablesAnimations = true
+                withTransaction(transaction, action)
+                try? await Task.sleep(for: .seconds(name == "7-copying" ? 0.6 : 4))
                 snapshot(to: out.appendingPathComponent("\(name).png"))
+                if let root = NSApp.windows.first(where: \.isVisible)?.contentView { logSplits(root, name) }
             }
             NSApp.terminate(nil)
         }
+    }
+
+    static func logSplits(_ view: NSView, _ step: String) {
+        if let split = view as? NSSplitView {
+            print(step, "split", split.arrangedSubviews.map { "\(Int($0.frame.width))\($0.isHidden ? " hidden" : "")" })
+        }
+        view.subviews.forEach { logSplits($0, step) }
     }
 
     static func snapshot(to url: URL) {

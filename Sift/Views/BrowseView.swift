@@ -1,52 +1,43 @@
 import SwiftUI
 
+/// The detail column: the grid or the loupe, with the toolbar and inspector for each.
 struct BrowseView: View {
     @Environment(AppModel.self) private var app
     let session: CardSession
 
-    static let sidebarPadding: CGFloat = 10
-    static var contentLeading: CGFloat { Theme.sidebarWidth + sidebarPadding * 2 + 10 }
-
     var body: some View {
-        ZStack(alignment: .topLeading) {
-            GridView(session: session, leadingInset: Self.contentLeading)
-
-            // Drag strip so the window can be moved by its top edge.
-            Color.clear
-                .frame(height: 64)
-                .contentShape(Rectangle())
-                .gesture(WindowDragGesture())
-
-            TopBar(session: session)
-                .padding(.leading, Self.contentLeading)
-                .padding(.trailing, 16)
-                .padding(.top, 12)
-
-            SidebarView(session: session)
-                .frame(width: Theme.sidebarWidth)
-                .frame(maxHeight: .infinity)
-                .padding(Self.sidebarPadding)
-
-            BottomPill(session: session)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-                .padding(.leading, Self.contentLeading - 10)
-                .padding(.bottom, 18)
+        @Bindable var app = app
+        Group {
+            if app.mode == .loupe {
+                LoupeView(session: session)
+            } else {
+                GridView(session: session)
+            }
         }
-        .ignoresSafeArea()
+        .navigationTitle(title)
+        .navigationSubtitle(subtitle)
+        .toolbar {
+            if app.mode == .loupe {
+                LoupeToolbar(session: session)
+            } else {
+                GridToolbar(session: session)
+            }
+        }
     }
-}
 
-private struct TopBar: View {
-    @Environment(AppModel.self) private var app
-    let session: CardSession
-
-    var title: String {
+    private var title: String {
+        if app.mode == .loupe, let photo = session.selected { return photo.basename }
         if let folder = session.folderFilter { return folder }
+        if session.filter != .all { return session.filter.title }
         let folders = session.folders
         return folders.count == 1 ? folders[0].name : session.source.name
     }
 
-    var subtitle: String {
+    private var subtitle: String {
+        if session.isScanning { return "Reading card…" }
+        if app.mode == .loupe, let photo = session.selected {
+            return "\((session.selectedIndex ?? 0) + 1) of \(session.visible.count) · \(photo.kindLabelSpaced)"
+        }
         let photos = session.visible
         var parts = [Format.plural(photos.count, "photo")]
         if let first = photos.first, let last = photos.last {
@@ -57,68 +48,87 @@ private struct TopBar: View {
         }
         return parts.joined(separator: " · ")
     }
+}
 
-    var body: some View {
+private struct GridToolbar: ToolbarContent {
+    @Environment(AppModel.self) private var app
+    let session: CardSession
+
+    var body: some ToolbarContent {
         @Bindable var app = app
         let picks = session.picks.count
-        HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 1) {
-                Text(title)
-                    .font(.system(size: 15, weight: .semibold))
-                    .lineLimit(1)
-                Text(session.isScanning ? "Reading card…" : subtitle)
-                    .font(.system(size: 11))
-                    .foregroundStyle(Theme.textSecondary)
-                    .monospacedDigit()
+
+        ToolbarItem {
+            Slider(value: $app.thumbnailSize, in: Theme.minThumb...Theme.maxThumb) {
+                Text("Thumbnail size")
+            } minimumValueLabel: {
+                Image(systemName: "square").imageScale(.small)
+            } maximumValueLabel: {
+                Image(systemName: "square").imageScale(.large)
             }
-            .padding(.horizontal, 18)
-            .frame(height: 44)
-            .siftGlass(.regular, in: .capsule)
+            .frame(width: 180)
+            .help("Thumbnail size (⌘= / ⌘-)")
+        }
 
-            Spacer(minLength: 12)
+        ToolbarSpacer(.fixed)
 
-            HStack(spacing: 10) {
-                Image(systemName: "square")
-                    .font(.system(size: 9, weight: .semibold))
-                Slider(value: $app.thumbnailSize, in: Theme.minThumb...Theme.maxThumb)
-                    .frame(width: 150)
-                    .accessibilityLabel("Thumbnail size")
-                Image(systemName: "square")
-                    .font(.system(size: 15, weight: .semibold))
+        ToolbarItem {
+            Button("View large", systemImage: "arrow.up.left.and.arrow.down.right") { app.openLoupe() }
+                .disabled(session.selected == nil)
+                .help("View large (Space)")
+        }
+
+        ToolbarSpacer(.fixed)
+
+        ToolbarItem {
+            Button {
+                app.openImport()
+            } label: {
+                Label(picks > 0 ? "Import \(Format.plural(picks, "pick"))" : "Import picks", systemImage: "square.and.arrow.down")
+                    .labelStyle(.titleAndIcon)
             }
-            .foregroundStyle(Theme.textSecondary)
-            .padding(.horizontal, 16)
-            .frame(height: 44)
-            .siftGlass(.regular, in: .capsule)
-
-            GlassEffectContainer(spacing: 8) {
-                HStack(spacing: 8) {
-                    Button { app.openLoupe() } label: {
-                        Label("View large", systemImage: "arrow.up.left.and.arrow.down.right")
-                            .padding(.horizontal, 4)
-                    }
-                    .buttonStyle(.glass)
-                    .disabled(session.selected == nil)
-
-                    Button { app.openImport() } label: {
-                        Label(picks > 0 ? "Import \(Format.plural(picks, "pick"))" : "Import picks",
-                              systemImage: "square.and.arrow.down")
-                            .fontWeight(.semibold)
-                            .padding(.horizontal, 4)
-                    }
-                    .buttonStyle(.glassProminent)
-                    .tint(Theme.pick)
-                    .foregroundStyle(Theme.onPick)
-                    .disabled(!app.canImport)
-                    .help("Import picks (⌘I)")
-                }
-                .controlSize(.extraLarge)
-            }
+            .buttonStyle(.glassProminent)
+            .tint(Theme.pick)
+            .foregroundStyle(Theme.onPick)
+            .disabled(!app.canImport)
+            .help("Import picks (⌘I)")
         }
     }
 }
 
-private struct BottomPill: View {
+private struct LoupeToolbar: ToolbarContent {
+    @Environment(AppModel.self) private var app
+    let session: CardSession
+
+    var body: some ToolbarContent {
+        @Bindable var app = app
+
+        ToolbarItem(placement: .navigation) {
+            Button("Grid", systemImage: "square.grid.2x2") { app.closeLoupe() }
+                .labelStyle(.titleAndIcon)
+                .help("Back to grid (Space)")
+        }
+
+        ToolbarItem {
+            Picker("Zoom", selection: $app.zoomed) {
+                Text("Fit").tag(false)
+                Text("100%").tag(true)
+            }
+            .pickerStyle(.segmented)
+            .help("Toggle 100% (Z)")
+        }
+
+        ToolbarSpacer(.fixed)
+
+        ToolbarItem {
+            Button("Info", systemImage: "info.circle") { app.toggleInspector() }
+                .help("Show or hide photo info")
+        }
+    }
+}
+
+/// Floating key hints at the bottom of the grid.
+struct BottomPill: View {
     let session: CardSession
 
     var body: some View {
@@ -127,13 +137,13 @@ private struct BottomPill: View {
             hint("X", "reject")
             hint("U", "clear")
             hint("Space", "view large")
-            Rectangle().fill(Theme.hairline).frame(width: 1, height: 16)
+            Divider().frame(height: 16)
             HStack(spacing: 5) {
-                Image(systemName: "flag.fill").foregroundStyle(Theme.pick).font(.system(size: 10))
+                Image(systemName: "flag.fill").foregroundStyle(Theme.pickInk).font(.system(size: 10))
                 Text("\(session.picks.count) picked")
             }
             HStack(spacing: 5) {
-                Image(systemName: "xmark").foregroundStyle(Theme.reject).font(.system(size: 10, weight: .bold))
+                Image(systemName: "xmark").foregroundStyle(Theme.rejectInk).font(.system(size: 10, weight: .bold))
                 Text("\(session.rejects.count) rejected")
             }
         }
@@ -147,7 +157,7 @@ private struct BottomPill: View {
     private func hint(_ key: String, _ label: String) -> some View {
         HStack(spacing: 5) {
             KeyCap(key)
-            Text(label).foregroundStyle(Theme.textSecondary)
+            Text(label).foregroundStyle(.secondary)
         }
     }
 }
@@ -161,6 +171,6 @@ struct KeyCap: View {
             .font(.system(size: 10.5, weight: .semibold, design: .rounded))
             .padding(.horizontal, 5)
             .frame(minWidth: 18, minHeight: 17)
-            .background(Color.white.opacity(0.12), in: RoundedRectangle(cornerRadius: 5, style: .continuous))
+            .background(.quaternary, in: RoundedRectangle(cornerRadius: 5, style: .continuous))
     }
 }

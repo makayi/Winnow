@@ -4,28 +4,32 @@ struct RootView: View {
     @Environment(AppModel.self) private var app
 
     var body: some View {
-        ZStack {
-            Theme.windowBackground.ignoresSafeArea()
+        @Bindable var app = app
+        Group {
             if let session = app.session {
-                BrowseView(session: session)
-                    .blur(radius: app.importFlow != nil ? 22 : 0)
-                if app.mode == .loupe, app.importFlow == nil {
-                    LoupeView(session: session)
-                        .transition(.opacity)
+                NavigationSplitView(columnVisibility: $app.columnVisibility) {
+                    SidebarView(session: session)
+                        .navigationSplitViewColumnWidth(min: 220, ideal: 240, max: 320)
+                } detail: {
+                    BrowseView(session: session)
                 }
-                if let flow = app.importFlow {
-                    ImportOverlay(flow: flow)
-                        .transition(.opacity.combined(with: .scale(scale: 0.98)))
+                .inspector(isPresented: $app.inspectorPresented) {
+                    Group {
+                        if let photo = session.selected {
+                            InspectorView(session: session, photo: photo)
+                        }
+                    }
+                    .inspectorColumnWidth(min: 270, ideal: 300, max: 380)
                 }
             } else {
                 EmptyStateView()
             }
         }
-        .animation(.easeOut(duration: 0.18), value: app.mode)
-        .animation(.easeOut(duration: 0.2), value: app.importFlow == nil)
         .frame(minWidth: 1000, minHeight: 680)
-        .preferredColorScheme(.dark)
-        .foregroundStyle(Theme.textPrimary)
+        .sheet(item: $app.importFlow, onDismiss: { app.leaveEjectedSession() }) { flow in
+            ImportSheetContainer(flow: flow)
+                .environment(app)
+        }
         .alert("Couldn't eject", isPresented: Binding(get: { app.ejectError != nil }, set: { if !$0 { app.ejectError = nil } })) {
             Button("OK") { app.ejectError = nil }
         } message: {
@@ -38,25 +42,19 @@ struct EmptyStateView: View {
     @Environment(AppModel.self) private var app
 
     var body: some View {
-        VStack(spacing: 14) {
-            Image(systemName: "sdcard")
-                .font(.system(size: 40, weight: .light))
-                .foregroundStyle(Theme.textSecondary)
-                .padding(.bottom, 4)
-            Text("Insert an SD card")
-                .font(.system(size: 18, weight: .semibold))
+        ContentUnavailableView {
+            Label("Insert an SD card", systemImage: "sdcard")
+        } description: {
             Text("Sift opens your camera's card as soon as it mounts.\nYou can also browse any folder of photos.")
-                .font(.system(size: 13))
-                .multilineTextAlignment(.center)
-                .foregroundStyle(Theme.textSecondary)
+        } actions: {
             Button("Open Folder…") { app.openFolderPanel() }
                 .buttonStyle(.glassProminent)
-                .tint(Theme.pick)
-                .foregroundStyle(Theme.onPick)
                 .controlSize(.large)
-                .padding(.top, 6)
         }
-        .padding(40)
-        .siftGlass(.regular, in: RoundedRectangle(cornerRadius: Theme.Radius.sheet, style: .continuous))
+        .toolbar {
+            ToolbarItem {
+                Button("Open Folder…", systemImage: "folder") { app.openFolderPanel() }
+            }
+        }
     }
 }

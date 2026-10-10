@@ -4,18 +4,15 @@ import SwiftUI
 struct GridView: View {
     @Environment(AppModel.self) private var app
     let session: CardSession
-    let leadingInset: CGFloat
 
-    private let topInset: CGFloat = 76
-    private let bottomInset: CGFloat = 84
-    private let trailingInset: CGFloat = 20
+    private let inset: CGFloat = 20
 
     /// Remembers a click that cycled a flag, so the second click of a double-click can undo it.
     @State private var lastCycle: (id: String, previous: Flag)?
 
     var body: some View {
         GeometryReader { geo in
-            let available = max(geo.size.width - leadingInset - trailingInset, Theme.minThumb)
+            let available = max(geo.size.width - inset * 2, Theme.minThumb)
             let size = app.thumbnailSize
             let columns = max(1, Int((available + Theme.gridSpacingH) / (size + Theme.gridSpacingH)))
             let cellWidth = (available - CGFloat(columns - 1) * Theme.gridSpacingH) / CGFloat(columns)
@@ -49,16 +46,13 @@ struct GridView: View {
                             }
                         }
                     }
-                    .padding(.leading, leadingInset)
-                    .padding(.trailing, trailingInset)
-                    .padding(.top, topInset)
-                    .padding(.bottom, bottomInset)
-
-                    if session.visible.isEmpty && !session.isScanning {
-                        emptyMessage
-                            .padding(.leading, leadingInset)
-                            .padding(.top, 80)
-                    }
+                    .padding(inset)
+                }
+                .overlay {
+                    if session.visible.isEmpty && !session.isScanning { emptyMessage }
+                }
+                .safeAreaInset(edge: .bottom) {
+                    BottomPill(session: session).padding(.bottom, 14)
                 }
                 .scrollIndicators(.automatic)
                 .onChange(of: session.selectedID) { _, id in
@@ -75,14 +69,11 @@ struct GridView: View {
     }
 
     private var emptyMessage: some View {
-        VStack(spacing: 8) {
-            Text(session.scanError ?? (session.photos.isEmpty ? "No photos found" : "Nothing to show"))
-                .font(.system(size: 15, weight: .semibold))
-            Text(session.photos.isEmpty ? "Sift looks for RAF, JPG and HEIF files." : "No photos match \(session.filter.title.lowercased()).")
-                .font(.system(size: 13))
-                .foregroundStyle(Theme.textSecondary)
-        }
-        .frame(maxWidth: .infinity)
+        ContentUnavailableView(
+            session.scanError ?? (session.photos.isEmpty ? "No photos found" : "Nothing to show"),
+            systemImage: "photo.on.rectangle",
+            description: Text(session.photos.isEmpty ? "Sift looks for RAF, JPG and HEIF files." : "No photos match \(session.filter.title.lowercased()).")
+        )
     }
 
     /// Click selects; clicking the selected photo cycles its flag; double-click opens it large.
@@ -122,14 +113,14 @@ struct ThumbnailCell: View {
         VStack(alignment: .leading, spacing: 7) {
             ZStack {
                 RoundedRectangle(cornerRadius: Theme.Radius.thumb, style: .continuous)
-                    .fill(Color.white.opacity(0.045))
+                    .fill(Theme.placeholder)
                 if let image {
                     Image(decorative: image, scale: 1)
                         .resizable()
                         .interpolation(.high)
                         .aspectRatio(contentMode: .fit)
                         .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.thumb, style: .continuous))
-                        .shadow(color: .black.opacity(0.45), radius: 10, y: 5)
+                        .shadow(color: .black.opacity(0.25), radius: 8, y: 4)
                 }
             }
             .aspectRatio(3 / 2, contentMode: .fit)
@@ -145,9 +136,10 @@ struct ThumbnailCell: View {
                 if imported {
                     Text("Imported")
                         .font(.system(size: 10.5, weight: .semibold))
-                        .padding(.horizontal, 9)
-                        .padding(.vertical, 4)
-                        .siftGlass(.regular, in: .capsule)
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 3)
+                        .background(.black.opacity(0.55), in: .capsule)
                         .padding(8)
                 }
             }
@@ -155,7 +147,7 @@ struct ThumbnailCell: View {
             .overlay {
                 if selected {
                     RoundedRectangle(cornerRadius: Theme.Radius.thumb + 4, style: .continuous)
-                        .strokeBorder(Color.white.opacity(0.9), lineWidth: 2)
+                        .strokeBorder(.primary, lineWidth: 2)
                 }
             }
 
@@ -167,11 +159,11 @@ struct ThumbnailCell: View {
                     Spacer(minLength: 4)
                     Text(photo.kindLabel)
                         .font(.system(size: 10.5, weight: .semibold))
-                        .foregroundStyle(Theme.textSecondary)
+                        .foregroundStyle(.secondary)
                 }
                 Text(exposure ?? " ")
                     .font(.system(size: 11.5))
-                    .foregroundStyle(Theme.textSecondary)
+                    .foregroundStyle(.secondary)
                     .monospacedDigit()
                     .lineLimit(1)
             }
@@ -206,6 +198,7 @@ struct ThumbnailCell: View {
     }
 }
 
+/// Flag badge on a photo. Photos are content, so this is a solid chip rather than glass.
 struct FlagBadge: View {
     let symbol: String
     let color: Color
@@ -213,8 +206,9 @@ struct FlagBadge: View {
     var body: some View {
         Image(systemName: symbol)
             .font(.system(size: 11, weight: .bold))
-            .foregroundStyle(color)
-            .frame(width: 26, height: 26)
-            .siftGlass(.regular.tint(color.opacity(0.18)), in: .circle)
+            .foregroundStyle(Theme.onPick)
+            .frame(width: 24, height: 24)
+            .background(color, in: .circle)
+            .shadow(color: .black.opacity(0.3), radius: 3, y: 1)
     }
 }

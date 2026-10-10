@@ -29,18 +29,17 @@ struct ImportProgressView: View {
                 Spacer()
                 Text(flow.progress.currentFile)
                     .font(Theme.mono)
-                    .foregroundStyle(Theme.textSecondary)
+                    .foregroundStyle(.secondary)
             }
             .font(.system(size: 13))
             Text(flow.stopping
                  ? "Stopping after this file. Finished copies stay where they are."
                  : "Every copy is checked against the card before it's kept.")
                 .font(.system(size: 12))
-                .foregroundStyle(Theme.textSecondary)
+                .foregroundStyle(.secondary)
             HStack {
                 Spacer()
                 Button(flow.stopping ? "Stopping…" : "Stop") { flow.stop() }
-                    .buttonStyle(.glass)
                     .controlSize(.large)
                     .disabled(flow.stopping)
             }
@@ -63,13 +62,13 @@ struct ImportProgressView: View {
             VStack(alignment: .leading, spacing: 10) {
                 Text("Delete \(verified.count == 1 ? "this photo" : "these \(verified.count) photos") from the card?")
                     .font(.system(size: 15, weight: .semibold))
-                Text("\(Text("Your copies are in ").foregroundStyle(Theme.textSecondary))\(Text(Format.abbreviatedPath(destinationPath)).font(Theme.mono))")
+                Text("\(Text("Your copies are in ").foregroundStyle(.secondary))\(Text(Format.abbreviatedPath(destinationPath)).font(Theme.mono))")
                     .font(.system(size: 12.5))
                     .lineLimit(2)
                     .truncationMode(.middle)
                 Text("Everything else on the card stays where it is. This can't be undone.")
                     .font(.system(size: 12.5))
-                    .foregroundStyle(Theme.textSecondary)
+                    .foregroundStyle(.secondary)
                 if rejects > 0 {
                     Toggle("Also delete the \(Format.plural(rejects, "photo")) I rejected", isOn: $flow.alsoDeleteRejects)
                         .toggleStyle(.checkbox)
@@ -79,12 +78,11 @@ struct ImportProgressView: View {
             }
             .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            .background(Theme.tileFill, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
 
             HStack(spacing: 10) {
                 Spacer()
                 Button("Keep on card") { flow.keepOnCard() }
-                    .buttonStyle(.glass)
                     .keyboardShortcut(.defaultAction)
                 Button(role: .destructive) {
                     flow.deleteFromCard()
@@ -97,8 +95,9 @@ struct ImportProgressView: View {
                 .foregroundStyle(Theme.onPick)
                 .disabled(flow.isDeleting)
             }
-            .controlSize(.extraLarge)
+            .controlSize(.large)
         }
+        .onExitCommand { flow.keepOnCard() }
     }
 
     // MARK: Finished
@@ -125,14 +124,14 @@ struct ImportProgressView: View {
             } else {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title).font(.system(size: 18, weight: .semibold))
-                    Text(detail).font(.system(size: 13)).foregroundStyle(Theme.textSecondary)
+                    Text(detail).font(.system(size: 13)).foregroundStyle(.secondary)
                 }
             }
 
             if result.stopped, result.skippedCount > 0 {
                 Text("Stopped before \(Format.plural(result.skippedCount, "photo")) were copied. Nothing half-copied was left behind.")
                     .font(.system(size: 12.5))
-                    .foregroundStyle(Theme.textSecondary)
+                    .foregroundStyle(.secondary)
             }
 
             FailureList(result: result)
@@ -141,17 +140,15 @@ struct ImportProgressView: View {
                 Label("\(Format.plural(flow.deleteFailures.count, "file")) couldn't be deleted and are still on the card.",
                       systemImage: "xmark")
                     .font(.system(size: 12.5))
-                    .foregroundStyle(Theme.reject)
+                    .foregroundStyle(Theme.rejectInk)
             }
 
             HStack(spacing: 10) {
                 if verified > 0 {
                     Button("Show in Finder") { flow.showInFinder() }
-                        .buttonStyle(.glass)
                 }
                 if app.canEject {
                     Button { app.ejectCurrent() } label: { Label("Eject card", systemImage: "eject") }
-                        .buttonStyle(.glass)
                 }
                 Spacer()
                 Button {
@@ -164,8 +161,9 @@ struct ImportProgressView: View {
                 .foregroundStyle(Theme.onPick)
                 .keyboardShortcut(.defaultAction)
             }
-            .controlSize(.extraLarge)
+            .controlSize(.large)
         }
+        .onExitCommand { flow.close() }
     }
 
     // MARK: Helpers
@@ -186,7 +184,7 @@ struct ImportProgressView: View {
                 Text(title).font(.system(size: 18, weight: .semibold))
                 Text(detail)
                     .font(.system(size: 12.5))
-                    .foregroundStyle(Theme.textSecondary)
+                    .foregroundStyle(.secondary)
                     .lineLimit(2)
             }
         }
@@ -206,18 +204,18 @@ private struct FailureList: View {
                     HStack(alignment: .firstTextBaseline, spacing: 8) {
                         Image(systemName: "xmark")
                             .font(.system(size: 10, weight: .bold))
-                            .foregroundStyle(Theme.reject)
+                            .foregroundStyle(Theme.rejectInk)
                         Text(r.photo.basename).font(Theme.mono)
                         Text(r.failure ?? "")
                             .font(.system(size: 12))
-                            .foregroundStyle(Theme.textSecondary)
+                            .foregroundStyle(.secondary)
                             .lineLimit(1)
                     }
                 }
                 if failed.count > 5 {
                     Text("and \(failed.count - 5) more")
                         .font(.system(size: 12))
-                        .foregroundStyle(Theme.textSecondary)
+                        .foregroundStyle(.secondary)
                 }
             }
             .padding(14)

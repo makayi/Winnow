@@ -25,6 +25,11 @@ enum PhotoFilter: Hashable, CaseIterable {
     }
 }
 
+enum SidebarItem: Hashable {
+    case folder(String)
+    case filter(PhotoFilter)
+}
+
 /// Everything about the card (or folder) being browsed.
 @MainActor @Observable
 final class CardSession {
@@ -146,7 +151,24 @@ final class CardSession {
     }
 
     func count(_ filter: PhotoFilter) -> Int {
-        photos.lazy.filter { (self.folderFilter == nil || $0.folder == self.folderFilter) && self.matches($0, filter) }.count
+        photos.lazy.filter { self.matches($0, filter) }.count
+    }
+
+    /// The sidebar has one selection: a folder (all its photos) or a filter across the card.
+    var sidebarSelection: SidebarItem? {
+        get { folderFilter.map(SidebarItem.folder) ?? .filter(filter) }
+        set {
+            switch newValue {
+            case .folder(let name):
+                folderFilter = name
+                filter = .all
+            case .filter(let f):
+                folderFilter = nil
+                filter = f
+            case nil:
+                break
+            }
+        }
     }
 
     var picks: [Photo] { photos.filter { flag($0.id) == .pick } }

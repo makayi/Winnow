@@ -16,8 +16,7 @@ struct SiftApp: App {
                     #endif
                 }
         }
-        .windowStyle(.hiddenTitleBar)
-        .windowBackgroundDragBehavior(.enabled)
+        .windowToolbarStyle(.unified)
         .defaultSize(width: 1440, height: 900)
         .commands { SiftCommands(app: app) }
     }

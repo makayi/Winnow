@@ -3,6 +3,7 @@ import SwiftUI
 
 struct LoupeView: View {
     @Environment(AppModel.self) private var app
+    @Environment(\.colorScheme) private var colorScheme
     let session: CardSession
 
     @State private var image: CGImage?
@@ -17,10 +18,9 @@ struct LoupeView: View {
         }
 
         ZStack {
-            Theme.loupeBackground.ignoresSafeArea()
+            Theme.loupeBackground
 
-            // A heavily blurred glow of the photo itself.
-            // Overlay on a clear view so the filled image can't grow the layout past the window.
+            // A heavily blurred glow of the photo itself, which the floating glass picks up.
             Color.clear
                 .overlay {
                     if let display {
@@ -28,34 +28,27 @@ struct LoupeView: View {
                             .resizable()
                             .aspectRatio(contentMode: .fill)
                             .blur(radius: 120)
-                            .opacity(0.4)
+                            .opacity(colorScheme == .dark ? 0.4 : 0.3)
                     }
                 }
                 .clipped()
-                .ignoresSafeArea()
                 .allowsHitTesting(false)
 
-            HStack(spacing: 16) {
-                VStack(spacing: 14) {
-                    topBar(photo)
-                    ZStack {
-                        photoArea(photo: photo, display: display)
-                            .padding(.horizontal, 64)
-                        HStack {
-                            navButton("chevron.left", label: "Previous photo") { session.moveSelection(by: -1) }
-                            Spacer()
-                            navButton("chevron.right", label: "Next photo") { session.moveSelection(by: 1) }
-                        }
-                    }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    FilmstripView(session: session)
-                }
-                if let photo {
-                    InspectorView(session: session, photo: photo)
-                        .frame(width: 300)
-                }
+            photoArea(photo: photo, display: display)
+                .padding(.horizontal, 72)
+                .padding(.vertical, 20)
+
+            HStack {
+                navButton("chevron.left", label: "Previous photo") { session.moveSelection(by: -1) }
+                Spacer()
+                navButton("chevron.right", label: "Next photo") { session.moveSelection(by: 1) }
             }
-            .padding(16)
+            .padding(.horizontal, 16)
+        }
+        .safeAreaInset(edge: .bottom) {
+            FilmstripView(session: session)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 16)
         }
         .task(id: photo?.id) {
             guard let photo else { return }
@@ -80,49 +73,6 @@ struct LoupeView: View {
         }
     }
 
-    // MARK: Pieces
-
-    private func topBar(_ photo: Photo?) -> some View {
-        @Bindable var app = app
-        return ZStack {
-            HStack {
-                Button { app.closeLoupe() } label: {
-                    Label("Grid", systemImage: "square.grid.2x2")
-                        .padding(.horizontal, 2)
-                }
-                .buttonStyle(.glass)
-                .controlSize(.large)
-                .help("Back to grid (Space)")
-                Spacer()
-                Picker("Zoom", selection: $app.zoomed) {
-                    Text("Fit").tag(false)
-                    Text("100%").tag(true)
-                }
-                .pickerStyle(.segmented)
-                .labelsHidden()
-                .frame(width: 130)
-                .controlSize(.large)
-                .help("Toggle 100% (Z)")
-            }
-            if let photo {
-                HStack(spacing: 8) {
-                    Text(photo.basename)
-                        .font(.system(size: 13, weight: .semibold))
-                    Text("/")
-                        .foregroundStyle(Theme.textTertiary)
-                    Text("\((session.selectedIndex ?? 0) + 1) of \(session.visible.count) · \(photo.kindLabelSpaced)")
-                        .font(.system(size: 12))
-                        .foregroundStyle(Theme.textSecondary)
-                        .monospacedDigit()
-                }
-                .padding(.horizontal, 18)
-                .frame(height: 36)
-                .siftGlass(.regular, in: .capsule)
-            }
-        }
-        .padding(.leading, 70)  // clear of the traffic lights
-    }
-
     @ViewBuilder
     private func photoArea(photo: Photo?, display: CGImage?) -> some View {
         if app.zoomed, let photo {
@@ -137,7 +87,7 @@ struct LoupeView: View {
                         ProgressView()
                         Text(photo.raf != nil ? "Decoding RAW…" : "Loading full size…")
                             .font(.system(size: 12))
-                            .foregroundStyle(Theme.textSecondary)
+                            .foregroundStyle(.secondary)
                     }
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
@@ -149,7 +99,7 @@ struct LoupeView: View {
                 .interpolation(.high)
                 .aspectRatio(contentMode: .fit)
                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                .shadow(color: .black.opacity(0.6), radius: 40, y: 18)
+                .shadow(color: .black.opacity(colorScheme == .dark ? 0.6 : 0.25), radius: 40, y: 18)
                 .opacity(session.flag(photo?.id ?? "") == .reject ? 0.6 : 1)
                 .accessibilityLabel(photo.map { "\($0.basename), \(session.flag($0.id).accessibilityName)" } ?? "")
         } else {
@@ -177,67 +127,70 @@ struct InspectorView: View {
     var body: some View {
         let flag = session.flag(photo.id)
         let exif = session.exif[photo.id]
-        VStack(alignment: .leading, spacing: 18) {
-            VStack(spacing: 8) {
-                flagButton(.pick, title: "Pick", symbol: "flag.fill", key: "P", color: Theme.pick, current: flag)
-                flagButton(.reject, title: "Reject", symbol: "xmark", key: "X", color: Theme.reject, current: flag)
-            }
-
-            Grid(horizontalSpacing: 8, verticalSpacing: 8) {
-                GridRow {
-                    tile("Shutter", exif?.shutterText)
-                    tile("Aperture", exif?.apertureText)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 18) {
+                GlassEffectContainer(spacing: 8) {
+                    VStack(spacing: 8) {
+                        flagButton(.pick, title: "Pick", symbol: "flag.fill", key: "P", color: Theme.pick, current: flag)
+                        flagButton(.reject, title: "Reject", symbol: "xmark", key: "X", color: Theme.reject, current: flag)
+                    }
                 }
-                GridRow {
-                    tile("ISO", exif?.iso.map(String.init))
-                    tile("Focal", exif?.focalText)
+
+                Grid(horizontalSpacing: 8, verticalSpacing: 8) {
+                    GridRow {
+                        tile("Shutter", exif?.shutterText)
+                        tile("Aperture", exif?.apertureText)
+                    }
+                    GridRow {
+                        tile("ISO", exif?.iso.map(String.init))
+                        tile("Focal", exif?.focalText)
+                    }
                 }
+
+                VStack(spacing: 0) {
+                    row("Camera", exif?.camera)
+                    row("Lens", exif?.lens)
+                    row("Film simulation", exif.map { $0.filmSimulation ?? "Unknown" })
+                    row("Taken", (exif?.dateTaken).map { Format.takenFormatter.string(from: $0) })
+                    row("Size", [photo.rafSize, photo.jpgSize].filter { $0 > 0 }.map(Format.roundBytes).joined(separator: " + "), last: true)
+                }
+
+                Text("← → next photo · Space back to grid · Z zoom to 100%")
+                    .font(.system(size: 11))
+                    .foregroundStyle(.tertiary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
-
-            VStack(spacing: 0) {
-                row("Camera", exif?.camera)
-                row("Lens", exif?.lens)
-                row("Film simulation", exif.map { $0.filmSimulation ?? "Unknown" })
-                row("Taken", (exif?.dateTaken).map { Format.takenFormatter.string(from: $0) })
-                row("Size", [photo.rafSize, photo.jpgSize].filter { $0 > 0 }.map(Format.roundBytes).joined(separator: " + "), last: true)
-            }
-
-            Spacer(minLength: 0)
-
-            Text("← → next photo · Space back to grid · Z zoom to 100%")
-                .font(.system(size: 11))
-                .foregroundStyle(Theme.textTertiary)
-                .fixedSize(horizontal: false, vertical: true)
+            .padding(16)
         }
-        .padding(18)
-        .padding(.top, 4)
-        .frame(maxHeight: .infinity, alignment: .top)
-        .siftGlass(.regular, in: RoundedRectangle(cornerRadius: 26, style: .continuous))
         .task(id: photo.id) { await session.ensureExif(for: photo) }
     }
 
     private func flagButton(_ flag: Flag, title: String, symbol: String, key: String, color: Color, current: Flag) -> some View {
         let active = current == flag
-        return Button {
-            session.setFlag(active ? .none : flag, for: photo.id)
-        } label: {
-            HStack(spacing: 10) {
-                Image(systemName: symbol)
-                    .font(.system(size: 12, weight: .bold))
-                    .foregroundStyle(active ? Theme.onPick : color)
-                Text(active ? (flag == .pick ? "Picked" : "Rejected") : title)
-                    .font(.system(size: 13, weight: .semibold))
-                Spacer()
-                KeyCap(key)
-                    .foregroundStyle(active ? Theme.onPick : Theme.textSecondary)
-            }
-            .foregroundStyle(active ? Theme.onPick : Theme.textPrimary)
-            .padding(.horizontal, 14)
-            .frame(height: 38)
-            .background(active ? color : Color.white.opacity(0.08), in: .capsule)
-            .contentShape(.capsule)
+        let label = HStack(spacing: 10) {
+            Image(systemName: symbol)
+                .font(.system(size: 12, weight: .bold))
+                .foregroundStyle(active ? Theme.onPick : (flag == .pick ? Theme.pickInk : Theme.rejectInk))
+            Text(active ? (flag == .pick ? "Picked" : "Rejected") : title)
+                .font(.system(size: 13, weight: .semibold))
+            Spacer()
+            KeyCap(key)
         }
-        .buttonStyle(.plain)
+        .foregroundStyle(active ? Theme.onPick : .primary)
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 3)
+
+        return Group {
+            if active {
+                Button { session.setFlag(.none, for: photo.id) } label: { label }
+                    .buttonStyle(.glassProminent)
+                    .tint(color)
+            } else {
+                Button { session.setFlag(flag, for: photo.id) } label: { label }
+                    .buttonStyle(.glass)
+            }
+        }
+        .controlSize(.large)
         .accessibilityLabel(title)
         .accessibilityValue(active ? "On" : "Off")
     }
@@ -246,7 +199,7 @@ struct InspectorView: View {
         VStack(alignment: .leading, spacing: 3) {
             Text(label)
                 .font(.system(size: 11))
-                .foregroundStyle(Theme.textSecondary)
+                .foregroundStyle(.secondary)
             Text(value ?? "—")
                 .font(.system(size: 17, weight: .semibold))
                 .monospacedDigit()
@@ -256,14 +209,14 @@ struct InspectorView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
-        .background(Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: Theme.Radius.small, style: .continuous))
+        .background(Theme.tileFill, in: RoundedRectangle(cornerRadius: Theme.Radius.small, style: .continuous))
     }
 
     private func row(_ label: String, _ value: String?, last: Bool = false) -> some View {
         VStack(spacing: 0) {
             HStack(alignment: .firstTextBaseline) {
                 Text(label)
-                    .foregroundStyle(Theme.textSecondary)
+                    .foregroundStyle(.secondary)
                 Spacer(minLength: 12)
                 Text(value ?? "—")
                     .multilineTextAlignment(.trailing)
@@ -271,7 +224,7 @@ struct InspectorView: View {
             }
             .font(.system(size: 12.5))
             .padding(.vertical, 8)
-            if !last { Rectangle().fill(Theme.hairline).frame(height: 1) }
+            if !last { Divider() }
         }
     }
 }
@@ -320,7 +273,7 @@ struct FilmThumb: View {
         let bucket = PreviewLoader.buckets[0]
         let image = loaded ?? previews.bestCached(photo.id, preferring: bucket)
         ZStack {
-            Color.white.opacity(0.06)
+            Theme.placeholder
             if let image {
                 Image(decorative: image, scale: 1)
                     .resizable()
@@ -332,7 +285,7 @@ struct FilmThumb: View {
         .opacity(flag == .reject && !current ? 0.38 : 1)
         .overlay {
             if current {
-                RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(.white, lineWidth: 2.5)
+                RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(.primary, lineWidth: 2.5)
             } else if flag == .pick {
                 RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Theme.pick, lineWidth: 2.5)
             }

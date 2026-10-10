@@ -26,15 +26,8 @@ final class KeyCommands {
 
         let key = Key(rawValue: event.keyCode)
 
-        if let flow = app.importFlow {
-            guard key == .escape else { return false }
-            switch flow.phase {
-            case .options, .finished: flow.close()
-            case .asking: flow.keepOnCard()
-            case .copying: break
-            }
-            return true
-        }
+        // The import sheet handles its own keys (Return, Esc).
+        if app.importFlow != nil { return false }
 
         guard let session = app.session else { return false }
         let inLoupe = app.mode == .loupe

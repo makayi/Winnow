@@ -5,110 +5,99 @@ struct SidebarView: View {
     let session: CardSession
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 18) {
-            SourceCard(session: session)
+        @Bindable var session = session
+        List(selection: $session.sidebarSelection) {
+            Section {
+                SourceRow(session: session)
+            }
 
-            ScrollView {
-                VStack(alignment: .leading, spacing: 18) {
-                    if app.sources.count > 1 {
-                        section("Sources") {
-                            ForEach(app.sources) { source in
-                                SidebarRow(icon: source.isCard ? "sdcard" : "folder", title: source.name, count: nil,
-                                           selected: source == session.source) { app.open(source) }
-                            }
+            if app.sources.count > 1 {
+                Section("Sources") {
+                    ForEach(app.sources) { source in
+                        Button { app.open(source) } label: {
+                            Label(source.name, systemImage: source.isCard ? "sdcard" : "folder")
+                                .fontWeight(source == session.source ? .semibold : .regular)
                         }
-                    }
-
-                    section("Folders") {
-                        ForEach(session.folders, id: \.name) { folder in
-                            SidebarRow(icon: "folder", title: folder.name, count: folder.count,
-                                       selected: session.folderFilter == folder.name) {
-                                session.folderFilter = session.folderFilter == folder.name ? nil : folder.name
-                            }
-                        }
-                    }
-
-                    section("Show") {
-                        ForEach(PhotoFilter.allCases, id: \.self) { filter in
-                            SidebarRow(icon: filter.symbol, iconColor: color(for: filter), title: filter.title,
-                                       count: session.count(filter), selected: session.filter == filter) {
-                                session.filter = filter
-                            }
-                        }
+                        .buttonStyle(.plain)
                     }
                 }
             }
-            .scrollIndicators(.never)
 
+            Section("Folders") {
+                ForEach(session.folders, id: \.name) { folder in
+                    Label(folder.name, systemImage: "folder")
+                        .badge(folder.count)
+                        .tag(SidebarItem.folder(folder.name))
+                }
+            }
+
+            Section("Show") {
+                ForEach(PhotoFilter.allCases, id: \.self) { filter in
+                    Label {
+                        Text(filter.title)
+                    } icon: {
+                        Image(systemName: filter.symbol)
+                            .foregroundStyle(color(for: filter))
+                    }
+                    .badge(session.count(filter))
+                    .tag(SidebarItem.filter(filter))
+                }
+            }
+        }
+        .listStyle(.sidebar)
+        .safeAreaInset(edge: .bottom) {
             Text("RAF and JPG pairs are shown as one photo. Both files import together.")
                 .font(.system(size: 11))
-                .foregroundStyle(Theme.textTertiary)
-                .fixedSize(horizontal: false, vertical: true)
-                .padding(.horizontal, 6)
+                .foregroundStyle(.tertiary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 14)
         }
-        .padding(.horizontal, 12)
-        .padding(.top, 44)  // clear of the window's traffic lights
-        .padding(.bottom, 16)
-        .frame(maxHeight: .infinity, alignment: .top)
-        .siftGlass(.regular, in: RoundedRectangle(cornerRadius: Theme.Radius.panel, style: .continuous))
     }
 
     private func color(for filter: PhotoFilter) -> Color {
         switch filter {
-        case .picks: Theme.pick
-        case .rejects: Theme.reject
-        default: Theme.textSecondary
-        }
-    }
-
-    @ViewBuilder
-    private func section<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(title)
-                .font(.system(size: 11, weight: .semibold))
-                .foregroundStyle(Theme.textTertiary)
-                .padding(.horizontal, 8)
-                .padding(.bottom, 4)
-            content()
+        case .picks: Theme.pickInk
+        case .rejects: Theme.rejectInk
+        default: .secondary
         }
     }
 }
 
-private struct SourceCard: View {
+private struct SourceRow: View {
     @Environment(AppModel.self) private var app
     let session: CardSession
 
     var body: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 10) {
             Image(systemName: session.source.isCard ? "sdcard" : "folder")
                 .font(.system(size: 15))
+                .foregroundStyle(.secondary)
                 .frame(width: 30, height: 30)
-                .background(Color.white.opacity(0.08), in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-            VStack(alignment: .leading, spacing: 2) {
+                .background(.quaternary, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+            VStack(alignment: .leading, spacing: 1) {
                 Text(session.cameraName)
                     .font(.system(size: 13, weight: .semibold))
                     .lineLimit(1)
                 Text(detail)
                     .font(.system(size: 11))
-                    .foregroundStyle(Theme.textSecondary)
+                    .foregroundStyle(.secondary)
                     .monospacedDigit()
                     .lineLimit(1)
             }
             Spacer(minLength: 0)
             if app.canEject {
                 Button { app.ejectCurrent() } label: {
-                    Image(systemName: "eject")
-                        .font(.system(size: 11, weight: .semibold))
+                    Image(systemName: "eject.fill")
                 }
-                .buttonStyle(.glass)
-                .controlSize(.small)
-                .buttonBorderShape(.circle)
+                .buttonStyle(.borderless)
+                .foregroundStyle(.secondary)
                 .help("Eject card (⌘E)")
                 .accessibilityLabel("Eject card")
             }
         }
-        .padding(10)
-        .background(Color.white.opacity(0.06), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .padding(.vertical, 4)
+        .selectionDisabled()
     }
 
     private var detail: String {
@@ -116,41 +105,5 @@ private struct SourceCard: View {
         if session.isEjected { return "\(kind) · ejected" }
         if session.isScanning { return "\(kind) · reading…" }
         return "\(kind) · \(Format.plural(session.photos.count, "photo"))"
-    }
-}
-
-private struct SidebarRow: View {
-    let icon: String
-    var iconColor: Color = Theme.textSecondary
-    let title: String
-    let count: Int?
-    let selected: Bool
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 9) {
-                Image(systemName: icon)
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(iconColor)
-                    .frame(width: 18)
-                Text(title)
-                    .font(.system(size: 13))
-                    .lineLimit(1)
-                Spacer(minLength: 4)
-                if let count {
-                    Text("\(count)")
-                        .font(.system(size: 12))
-                        .monospacedDigit()
-                        .foregroundStyle(Theme.textSecondary)
-                }
-            }
-            .padding(.horizontal, 8)
-            .frame(height: 30)
-            .background(selected ? Color.white.opacity(0.12) : .clear, in: RoundedRectangle(cornerRadius: 9, style: .continuous))
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .accessibilityAddTraits(selected ? .isSelected : [])
     }
 }

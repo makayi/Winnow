@@ -3,7 +3,8 @@ import Observation
 
 /// Drives the import sheet: options → copying → delete prompt → finished.
 @MainActor @Observable
-final class ImportFlow {
+final class ImportFlow: Identifiable {
+    let id = UUID()
     enum Phase { case options, copying, asking, finished }
 
     let session: CardSession
