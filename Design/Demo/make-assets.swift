@@ -116,19 +116,15 @@ func brandCard(_ name: String, headline: String, sub: String?, footer: String?) 
     }
 }
 
-// The problem, in plain words. Claims checked: Lightroom Classic has no option to delete photos from a
-// card after import (long-standing Adobe feature request); Apple Photos imports only into its own library.
 statement("intro-1", "400 photos\non your card.", "You want maybe 20.")
-statement("intro-2", "Lightroom Classic can't\ndelete them from your card\nafter import.")
-statement("intro-3", "Apple Photos puts\neverything into its\nown library.")
 brandCard("title", headline: "Pick your best,\nright off the card.", sub: nil, footer: nil)
-brandCard("end", headline: "See every shot big.\nPick your favourites.\nCopy only those.", sub: nil, footer: "Made for Mac")
+brandCard("end", headline: "See every shot big.\nKeep only your favourites.\nIn your own folders, ready to edit.", sub: nil, footer: "Made for Mac")
 
 let captions: [(String, String, String)] = [
     ("grow", "See every shot big", "Right off the SD card. Nothing to import first."),
     ("cull", "Pick your favourites\nwith one key", "Press P to keep a photo, X to skip it"),
     ("loupe", "Look closer before\nyou decide", "With the camera settings for every shot"),
-    ("import", "Copy only the ones\nyou picked", "Into your own folders. Every copy double-checked."),
+    ("import", "Copy only the ones\nyou picked", "Straight into your own folders, ready for Lightroom"),
     ("delete", "Then free up your card", "Winnow only deletes photos it copied safely"),
 ]
 for (id, headline, sub) in captions {

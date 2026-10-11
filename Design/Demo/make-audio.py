@@ -4,14 +4,14 @@
 hook, plus soft key clicks and a chime timed from timeline.json. No samples or third-party
 audio, so there is nothing to license.
 
-usage: make-audio.py <timeline.json> <out.wav> [intro_length=8.0]
+usage: make-audio.py <timeline.json> <out.wav> [intro_length=4.0]
 """
 import json, math, random, struct, sys, wave
 
 SR = 44100
 timeline = json.load(open(sys.argv[1]))
 out = sys.argv[2]
-T0 = float(sys.argv[3]) if len(sys.argv) > 3 else 8.0
+T0 = float(sys.argv[3]) if len(sys.argv) > 3 else 4.0
 events = timeline["events"]
 rec_len = timeline["duration"][0]["t"]
 END_IN = T0 + rec_len - 0.2

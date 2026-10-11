@@ -11,7 +11,7 @@ timeline = json.load(open(f"{demo}/timeline.json"))
 events = timeline["events"]
 rec_len = timeline["duration"][0]["t"]
 
-INTRO = ["intro-1", "intro-2", "intro-3", "title"]  # one bar each at 120 bpm
+INTRO = ["intro-1", "title"]  # one bar each at 120 bpm
 CARD = 2.0
 T0 = CARD * len(INTRO)       # recording starts as the last intro card fades
 END_IN = T0 + rec_len - 0.2  # end card fades in over the last frames
