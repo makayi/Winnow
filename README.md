@@ -1,78 +1,110 @@
-# Winnow
+<p align="center">
+  <img src="Design/Demo/remotion/public/icon.png" width="160" alt="Winnow app icon: a strip of film with one frame lit amber">
+</p>
 
-A native macOS app for viewing Fujifilm photos straight off an SD card, culling them (pick / reject), and importing only the picks. After a verified import it offers to delete the imported photos from the card. It never formats the card.
+<h1 align="center">Winnow</h1>
 
-Requires macOS 26 (Tahoe) on Apple silicon. Apple frameworks only, no dependencies.
+<p align="center">
+  <b>Pick your best Fujifilm shots straight off the SD card, then import only those.</b><br>
+  A native Mac app for macOS Tahoe.
+</p>
 
-## Build and run
+---
 
-Open `Winnow.xcodeproj` in Xcode 27 and run the **Winnow** scheme, or:
+You shoot 400 frames and want maybe 20. Getting to those 20 on a Mac is harder than it should be:
 
-```sh
-xcodebuild -project Winnow.xcodeproj -scheme Winnow -derivedDataPath build/DerivedData build
-open build/DerivedData/Build/Products/Debug/Winnow.app
-xcodebuild -project Winnow.xcodeproj -scheme Winnow -derivedDataPath build/DerivedData test
-```
+- **Finder** thumbnails are tiny, and ⌘+ zooms the window instead of the photos.
+- **Photos** makes you import everything into its library first, and getting files back out to edit in Lightroom is a chore.
+- **Lightroom's import dialog** shows postage-stamp previews.
 
-Insert a card and Winnow comes forward and opens it. A card is any removable volume with a `DCIM/` folder. You can also use **File › Open Folder…** (⌘O) to browse any folder.
+Winnow opens your card the moment you insert it and shows every shot big. Pick the keepers with one key, then copy only those, RAF and JPG together, into your own folders, ready to edit. Every copy is checked against the card before anything is deleted.
 
-## Look
+## Features
 
-Winnow follows the system appearance (light or dark) and uses Apple's own containers, so Liquid Glass comes from the system:
-- `NavigationSplitView` for the sidebar
-- the unified window toolbar
-- `.inspector` for photo info in the large view
-- a standard sheet with a grouped `Form` for import
+- **Big previews, straight off the card.** Thumbnails up to 420 pt wide, resizable with a slider or ⌘= / ⌘-. Nothing is imported until you say so.
+- **RAF + JPG as one photo.** Pairs are grouped automatically, and RAF-only and JPG-only shooting both work.
+- **One-key culling.** P to pick, X to reject, U to clear, arrow keys to move. Flags are saved per card, so they survive ejecting and reinserting it.
+- **A large view for the close calls.** Fit or 100% (decoded from the RAW), a filmstrip, and the shutter, aperture, ISO, focal length, lens and **Fujifilm film simulation** for every shot.
+- **Verified import.** Copy into folders by date, by card folder, or all in one, with RAF + JPG, RAF only or JPG only. Every file is checked with a SHA-256 hash against the card before it's kept.
+- **Free up your card safely.** After an import, Winnow offers to delete only the photos it copied and verified, plus your rejects if you tick the box. It never formats the card or touches anything else on it.
+- **Made for the Mac.** Native SwiftUI with Apple's Liquid Glass, light and dark mode, and no dependencies.
 
-Custom glass (`glassEffect`) is only used for Winnow's own floating controls: the key-hint pill, the filmstrip and the previous / next buttons. Badges on the photos themselves are solid, because Apple reserves glass for controls that float above content.
-
-## App icon
-
-`Winnow/AppIcon.icon` is an Icon Composer icon: a strip of film on a lightbox, with the picked frame lit amber. It has a warm cream fill and two layers, `film.png` and `pick.png`. macOS adds the glass, the shadows and the dark and tinted variants. You can open it in Icon Composer (inside Xcode) to adjust it. To redraw the layers:
-
-```sh
-swiftc -O -o /tmp/make-layers Design/AppIcon/make-layers.swift && /tmp/make-layers Winnow/AppIcon.icon/Assets
-```
-
-## Keys
+## Keyboard
 
 | Key | Action |
 |---|---|
-| P / X / U | pick / reject / clear |
-| Space or Return | open large view; Space again returns to the grid |
-| ← → | previous / next photo |
-| ↑ ↓ | move by row in the grid |
+| P / X / U | Pick / reject / clear |
+| Space or Return | View large; Space again goes back to the grid |
+| ← → | Previous / next photo |
+| ↑ ↓ | Move by row in the grid |
 | Z | Fit / 100% in the large view |
-| Esc | back to grid / dismiss sheet |
-| ⌘= / ⌘- | bigger / smaller thumbnails |
-| ⌘I | import picks |
-| ⌘E | eject card |
+| Esc | Back to the grid / close the sheet |
+| ⌘= / ⌘- | Bigger / smaller thumbnails |
+| ⌘I | Import picks |
+| ⌘E | Eject the card |
+| ⌘O | Open a folder |
 
-Mouse: click a thumbnail to select it, click the selected one again to cycle its flag (none → pick → reject), double-click to view it large.
+With the mouse: click a photo to select it, click it again to cycle its flag (none → pick → reject), and double-click to view it large.
 
-## How it works
+## Requirements
 
-- **Scanning** walks `DCIM/*/`, pairs `DSCF4503.RAF` with `DSCF4503.JPG` (case-insensitive), and skips macOS `._` files.
-- **Previews** come from whichever camera-rendered JPEG is fewer bytes to read: the JPG sibling or the preview embedded in the RAF. On an X-E5 the embedded preview is about a third the size of the JPG, so it loads about 2.5× faster. RAW is only decoded (with `CIRAWFilter`) for 100% zoom. At most 4 reads run at once, and reads for cells that scroll away are cancelled.
-- **Flags and import records** live in `~/Library/Application Support/Winnow/cards/<volume UUID>.json`, so they survive eject and reinsert.
-- **Import** copies each file to a hidden `.<name>.winnow-partial`, hashes what it read from the card and what landed on disk (SHA-256, read back past the page cache), retries once on a mismatch, then renames the file into place and keeps the original dates. If a file with the same name and contents already exists, it is counted as already imported. A different file with the same name gets a `-1`, `-2` suffix.
-- **Delete from card** only removes source files whose copies were verified in that import (plus rejects, if you tick the box). It skips any file whose size changed since it was copied. It uses `removeItem`, not the Trash, so the space is freed on the card.
+- macOS 26 (Tahoe) or later
+- A Mac with Apple silicon
+- Xcode 27 to build
 
-## Notes
+Winnow was built and tested with a Fujifilm X-E5. It reads any card with a `DCIM/` folder, and **File › Open Folder…** browses any folder of photos.
 
-- **App Sandbox is off** (personal app): Winnow needs to read any removable volume and write to any folder you choose. Hardened runtime is on for Release builds. It is off for Debug so the hosted unit tests can load into the app.
-- macOS asks once for permission to read removable volumes.
-- "Open folder in Lightroom" appears only when Lightroom Classic is installed.
-- Debug builds accept `-open <folder>` to open a folder at launch. `-snapshots <dir>` walks the main screens and saves a PNG of each. Add `-appearance light` or `-appearance dark` to pick a mode. The capture can't render system glass, so custom glass is drawn flat and the sidebar and toolbar look wrong in snapshots.
+## Build and run
 
-## Layout
+There's no release build yet, so build it from source:
+
+```sh
+git clone https://github.com/makayi/Winnow.git
+cd Winnow
+xcodebuild -project Winnow.xcodeproj -scheme Winnow -derivedDataPath build/DerivedData build
+open build/DerivedData/Build/Products/Debug/Winnow.app
+```
+
+Or open `Winnow.xcodeproj` in Xcode and run the **Winnow** scheme. Run the tests with:
+
+```sh
+xcodebuild -project Winnow.xcodeproj -scheme Winnow -derivedDataPath build/DerivedData test
+```
+
+The first time Winnow reads a card, macOS asks for permission to access removable volumes.
+
+## How your photos are kept safe
+
+- **Copies are verified.** Each file is copied to a hidden partial file and hashed: what was read from the card is compared with what was written to disk, read back past the cache. On a mismatch Winnow retries once, then reports the photo as failed. Only a verified copy is renamed into place, keeping its original dates.
+- **Nothing is overwritten.** If a file with the same name and contents is already in the destination, it counts as already imported. A different file with the same name is saved with a `-1`, `-2` suffix.
+- **Stopping or pulling the card is safe.** Finished copies stay, no partial files are left behind, and Winnow lists any photos that didn't make it.
+- **Deleting is narrow.** Only source files whose copies were verified in that import can be deleted. A file is skipped if its size has changed since it was copied. Winnow never formats the card.
+
+These rules are covered by the unit tests in `WinnowTests/`, including a deliberately corrupted copy whose original must never be deleted.
+
+## Under the hood
+
+- **Previews** come from the camera's own JPEG: the JPG sibling, or the preview embedded in the RAF, whichever is fewer bytes to read from the card. On an X-E5 the embedded preview is about a third the size of the JPG. At most four reads run at once, and reads for photos that scroll out of view are cancelled.
+- **Film simulation** is read from the Fujifilm MakerNote in each file's EXIF.
+- **Flags and import records** are stored per card, keyed by the card's volume ID, in `~/Library/Application Support/Winnow/`.
+- **App Sandbox is off**, because Winnow needs to read any removable volume and write to any folder you choose. Hardened runtime is on for Release builds.
+
+## Project layout
 
 ```
 Winnow/
-  WinnowApp.swift
-  Models/     AppModel, CardSession, ImportFlow, Photo, Flag, ImportRecord
-  Services/   VolumeWatcher, CardScanner, PreviewLoader, ExifReader, Importer, CardStore
-  Views/      RootView, BrowseView, SidebarView, GridView, LoupeView, ImportSheet, ImportProgressView
-  Support/    KeyCommands, Theme, DebugSnapshots
-WinnowTests/    CardScannerTests, ImporterTests, CardStoreTests
+  Models/      AppModel, CardSession, ImportFlow, Photo, Flag, ImportRecord
+  Services/    VolumeWatcher, CardScanner, PreviewLoader, ExifReader, Importer, CardStore
+  Views/       RootView, BrowseView, SidebarView, GridView, LoupeView, ImportSheet, ImportProgressView
+  Support/     KeyCommands, Theme, LegacyMigration, debug-only demo and snapshot tools
+  AppIcon.icon Icon Composer icon
+WinnowTests/   CardScannerTests, ImporterTests, CardStoreTests
+Design/
+  AppIcon/     script that draws the icon layers
+  Demo/        product demo video, built with Remotion (see Design/Demo/README.md)
 ```
+
+## Notes
+
+- Winnow isn't affiliated with or endorsed by Fujifilm. Fujifilm is a trademark of FUJIFILM Corporation.
+- The app was called Sift during early development. On first launch it carries over flags and settings saved under that name.
