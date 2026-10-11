@@ -26,6 +26,14 @@ Winnow follows the system appearance (light or dark) and uses Apple's own contai
 
 Custom glass (`glassEffect`) is only used for Winnow's own floating controls: the key-hint pill, the filmstrip and the previous / next buttons. Badges on the photos themselves are solid, because Apple reserves glass for controls that float above content.
 
+## App icon
+
+`Winnow/AppIcon.icon` is an Icon Composer icon: a strip of film on a lightbox, with the picked frame lit amber. It has a warm cream fill and two layers, `film.png` and `pick.png`. macOS adds the glass, the shadows and the dark and tinted variants. You can open it in Icon Composer (inside Xcode) to adjust it. To redraw the layers:
+
+```sh
+swiftc -O -o /tmp/make-layers Design/AppIcon/make-layers.swift && /tmp/make-layers Winnow/AppIcon.icon/Assets
+```
+
 ## Keys
 
 | Key | Action |
