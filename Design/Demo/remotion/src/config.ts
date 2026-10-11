@@ -31,10 +31,10 @@ export const keyPresses = (timeline.events as TimelineEvent[]).filter((e) => e.k
 export { recordingLength };
 
 export const captions: Record<string, { title: string; sub: string }> = {
-  grow: { title: "See every shot big", sub: "Right off the SD card. Nothing to import first." },
+  grow: { title: "See every shot big", sub: "Straight off your Fujifilm's SD card.\nNo importing first." },
   cull: { title: "Pick your favourites\nwith one key", sub: "Press P to keep a photo, X to skip it" },
-  loupe: { title: "Look closer before\nyou decide", sub: "With the camera settings for every shot" },
-  import: { title: "Copy only the ones\nyou picked", sub: "Straight into your own folders, ready for Lightroom" },
+  loupe: { title: "Look closer before\nyou decide", sub: "Film simulation, lens and exposure for every shot" },
+  import: { title: "Copy only the ones\nyou picked", sub: "RAF and JPG together, straight into\nyour own folders, ready for Lightroom" },
   delete: { title: "Then free up your card", sub: "Winnow only deletes photos it copied safely" },
 };
 

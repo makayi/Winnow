@@ -17,7 +17,7 @@ export const Caption: React.FC<{ title: string; sub: string }> = ({ title, sub }
       <div style={{ marginTop: 150, fontSize: 84, fontWeight: 800, lineHeight: 1.05, letterSpacing: -1.5, textAlign: "center", whiteSpace: "pre-line", ...enter(0) }}>
         {title}
       </div>
-      <div style={{ marginTop: 22, fontSize: 44, lineHeight: 1.2, textAlign: "center", color: "rgba(27,27,29,0.6)", ...enter(0.08) }}>{sub}</div>
+      <div style={{ marginTop: 22, fontSize: 44, lineHeight: 1.2, textAlign: "center", whiteSpace: "pre-line", color: "rgba(27,27,29,0.6)", ...enter(0.08) }}>{sub}</div>
     </AbsoluteFill>
   );
 };

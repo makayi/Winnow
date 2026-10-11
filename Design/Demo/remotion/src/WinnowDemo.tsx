@@ -19,7 +19,7 @@ export const WinnowDemo: React.FC = () => {
         <PhotoWall />
       </Sequence>
       <Sequence name="Title" from={Math.round(CARD2_AT * fps)} durationInFrames={Math.round((APP_AT - CARD2_AT + 0.2) * fps)} premountFor={fps}>
-        <BrandCard line={"Pick your best,\nright off the card."} />
+        <BrandCard line={"For Fujifilm shooters.\nPick your best, right off the card."} />
       </Sequence>
 
       <Sequence name="App" from={Math.round(APP_AT * fps)} durationInFrames={Math.round((END_AT - APP_AT + 0.5) * fps)} premountFor={fps}>
@@ -50,7 +50,7 @@ export const WinnowDemo: React.FC = () => {
       })}
 
       <Sequence name="Cape Town ending" from={Math.round((END_AT - 0.1) * fps)} durationInFrames={Math.round((TOTAL - END_AT + 0.1) * fps)} premountFor={fps}>
-        <CapeTownEnding line={"See every shot big.\nKeep only your favourites."} footer="Made for Mac" />
+        <CapeTownEnding line={"Made for Fujifilm shooters.\nSee every shot big.\nKeep only your favourites."} footer="For Mac" />
       </Sequence>
 
       <Audio src={staticFile("music.wav")} premountFor={fps} />

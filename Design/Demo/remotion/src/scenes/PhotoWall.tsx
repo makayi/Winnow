@@ -96,7 +96,7 @@ export const PhotoWall: React.FC = () => {
             translate: interpolate(t, [0.1, 0.5], ["0px 30px", "0px 0px"], { ...clamp, easing: Easing.bezier(0.16, 1, 0.3, 1) }),
           }}
         >
-          {"400 photos\non your card."}
+          {"Shot 400 frames\non your Fuji?"}
         </div>
       </div>
       <div style={{ position: "absolute", top: 110, width: "100%", textAlign: "center" }}>
@@ -107,7 +107,7 @@ export const PhotoWall: React.FC = () => {
             translate: interpolate(t, [1.15, 1.55], ["0px 30px", "0px 0px"], { ...clamp, easing: Easing.bezier(0.16, 1, 0.3, 1) }),
           }}
         >
-          {"You want\nmaybe 20."}
+          {"Keep the 20\nthat count."}
         </div>
       </div>
     </AbsoluteFill>
