@@ -28,4 +28,13 @@ A 34-second portrait (1080×1920) demo, recorded from the real app.
 
    The track starts 0.24 s in, so its opening hit lands on the first card and its second hit (5.14 s) lands exactly when the app appears. (`make-audio.py` can still synthesise a placeholder track in code.)
 
-4. **Compose:** `python3 Design/Demo/build-video.py /tmp/demo /tmp/edit winnow-demo.mp4 /tmp/edit/music.wav --cards 0,2.364 --t0 4.898` (the audio is normalised to −16 LUFS).
+4. **Compose with motion:** `render-demo.swift` draws every frame itself. A virtual camera, set up in `camera.json`, zooms and pans over the recording with eased moves and a small punch-in on each pick. The window springs in on the music's hit, captions slide in, key badges pop, and the background drifts gently. Then add the audio:
+
+   ```sh
+   swiftc -O -o /tmp/render-demo Design/Demo/render-demo.swift
+   /tmp/render-demo /tmp/demo /tmp/edit Design/Demo/camera.json /tmp/edit/motion.mov 4.898 0,2.364
+   ffmpeg -i /tmp/edit/motion.mov -i /tmp/edit/music.wav -filter_complex "[1:a]loudnorm=I=-16:TP=-1.5:LRA=11[a]" \
+     -map 0:v -map "[a]" -c:v libx264 -crf 18 -pix_fmt yuv420p -c:a aac -b:a 192k -shortest winnow-demo.mp4
+   ```
+
+   `build-video.py` still makes a simpler cut with no camera moves.

@@ -97,7 +97,6 @@ canvas("brand") { c in
 /// Big statement card, text only, centred.
 func statement(_ name: String, _ headline: String, _ sub: String? = nil) {
     canvas(name) { c in
-        background(c)
         let h = text(headline, font: .systemFont(ofSize: 74, weight: .bold), color: ink, centerX: W / 2, top: 780, width: W - 160, lineSpacing: 6)
         if let sub { _ = text(sub, font: .systemFont(ofSize: 40, weight: .regular), color: ink.withAlphaComponent(0.55), centerX: W / 2, top: 780 + h + 36, width: W - 160) }
     }
@@ -106,7 +105,6 @@ func statement(_ name: String, _ headline: String, _ sub: String? = nil) {
 /// Card with the app icon and name.
 func brandCard(_ name: String, headline: String, sub: String?, footer: String?) {
     canvas(name) { c in
-        background(c)
         let iconSize: CGFloat = 360
         drawIcon(c, CGRect(x: (W - iconSize) / 2, y: 520, width: iconSize, height: iconSize))
         _ = text("Winnow", font: .systemFont(ofSize: 96, weight: .bold), color: ink, centerX: W / 2, top: 930)

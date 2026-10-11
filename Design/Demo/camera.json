@@ -1,0 +1,16 @@
+{
+  "_comment": "Virtual camera over the recording. Times are seconds into recording.mov; cx, cy are the focus point as fractions of the window; zoom 1 shows the whole window. Each move eases from the previous target over 'dur' seconds.",
+  "moves": [
+    {"t": 1.3,   "dur": 2.4, "cx": 0.55,  "cy": 0.48, "zoom": 1.08},
+    {"t": 3.9,   "dur": 0.8, "cx": 0.615, "cy": 0.5,  "zoom": 1.32},
+    {"t": 10.85, "dur": 0.8, "cx": 0.36,  "cy": 0.47, "zoom": 1.55},
+    {"t": 13.15, "dur": 0.7, "cx": 0.83,  "cy": 0.25, "zoom": 2.25},
+    {"t": 15.1,  "dur": 0.7, "cx": 0.5,   "cy": 0.5,  "zoom": 1.0},
+    {"t": 16.3,  "dur": 0.8, "cx": 0.615, "cy": 0.5,  "zoom": 1.62},
+    {"t": 18.6,  "dur": 0.6, "cx": 0.615, "cy": 0.5,  "zoom": 1.78},
+    {"t": 21.7,  "dur": 1.2, "cx": 0.615, "cy": 0.5,  "zoom": 1.9},
+    {"t": 23.7,  "dur": 0.9, "cx": 0.5,   "cy": 0.5,  "zoom": 1.0}
+  ],
+  "punch_keys": ["P", "X"],
+  "punch": 0.035
+}
