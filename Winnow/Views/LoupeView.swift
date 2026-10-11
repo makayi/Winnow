@@ -247,7 +247,7 @@ struct FilmstripView: View {
             }
             .scrollIndicators(.never)
             .frame(height: 84)
-            .siftGlass(.regular, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+            .winnowGlass(.regular, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
             .onAppear {
                 if let id = session.selectedID { proxy.scrollTo(id, anchor: .center) }
             }

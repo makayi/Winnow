@@ -222,7 +222,7 @@ struct Importer: Sendable {
             target = dir.appendingPathComponent("\(stem)-\(n)").appendingPathExtension(source.pathExtension)
         }
 
-        let partial = dir.appendingPathComponent(".\(target.lastPathComponent).sift-partial")
+        let partial = dir.appendingPathComponent(".\(target.lastPathComponent).winnow-partial")
         var lastError: Error = ImportError.hashMismatch(name)
         for _ in 0..<2 {  // one retry
             do {
@@ -252,7 +252,8 @@ struct Importer: Sendable {
         let fm = FileManager.default
         for dir in Set(dirs) {
             guard let names = try? fm.contentsOfDirectory(atPath: dir.path) else { continue }
-            for name in names where name.hasSuffix(".sift-partial") {
+            // ".sift-partial" is the suffix the app used before it was renamed.
+            for name in names where name.hasSuffix(".winnow-partial") || name.hasSuffix(".sift-partial") {
                 try? fm.removeItem(at: dir.appendingPathComponent(name))
             }
         }

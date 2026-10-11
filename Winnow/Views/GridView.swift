@@ -72,7 +72,7 @@ struct GridView: View {
         ContentUnavailableView(
             session.scanError ?? (session.photos.isEmpty ? "No photos found" : "Nothing to show"),
             systemImage: "photo.on.rectangle",
-            description: Text(session.photos.isEmpty ? "Sift looks for RAF, JPG and HEIF files." : "No photos match \(session.filter.title.lowercased()).")
+            description: Text(session.photos.isEmpty ? "Winnow looks for RAF, JPG and HEIF files." : "No photos match \(session.filter.title.lowercased()).")
         )
     }
 

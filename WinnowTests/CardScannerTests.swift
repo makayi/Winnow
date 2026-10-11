@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Sift
+@testable import Winnow
 
 @Suite struct CardScannerTests {
     @Test func pairsRAFAndJPGCaseInsensitively() throws {
@@ -59,7 +59,7 @@ import Testing
     }
 
     @Test func scansAPlainFolderWithoutDCIM() throws {
-        let root = FileManager.default.temporaryDirectory.appendingPathComponent("SiftFolder-\(UUID().uuidString)")
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent("WinnowFolder-\(UUID().uuidString)")
         defer { try? FileManager.default.removeItem(at: root) }
         try FileManager.default.createDirectory(at: root.appendingPathComponent("trip"), withIntermediateDirectories: true)
         try Data([1]).write(to: root.appendingPathComponent("A.JPG"))

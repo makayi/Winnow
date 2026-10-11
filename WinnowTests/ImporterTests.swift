@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import Sift
+@testable import Winnow
 
 @Suite struct ImporterTests {
     func options(_ dest: URL, layout: FolderLayout = .byDate, files: FileTypeChoice = .both) -> ImportOptions {
@@ -142,7 +142,7 @@ import Testing
         let result = Importer().run(items: planned, options: options(dest, layout: .singleFolder))
         #expect(result.verified.isEmpty)
         #expect(Set(result.failed.map(\.photo.basename)) == ["DSCF0001", "DSCF0002"])
-        #expect(allFiles(in: dest).allSatisfy { !$0.hasSuffix(".sift-partial") })
+        #expect(allFiles(in: dest).allSatisfy { !$0.hasSuffix(".winnow-partial") })
         #expect(Importer.deletionPlan(result: result).isEmpty)
     }
 

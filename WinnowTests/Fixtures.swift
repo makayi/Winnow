@@ -1,5 +1,5 @@
 import Foundation
-@testable import Sift
+@testable import Winnow
 
 /// A temporary folder that looks like a camera card: <root>/DCIM/100_FUJI/...
 struct FakeCard {
@@ -7,7 +7,7 @@ struct FakeCard {
 
     init() throws {
         root = FileManager.default.temporaryDirectory
-            .appendingPathComponent("SiftTests-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("WinnowTests-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: root.appendingPathComponent("DCIM/100_FUJI"), withIntermediateDirectories: true)
     }
 
@@ -28,7 +28,7 @@ struct FakeCard {
     }
 
     func makeDestination() -> URL {
-        root.deletingLastPathComponent().appendingPathComponent("SiftDest-\(UUID().uuidString)", isDirectory: true)
+        root.deletingLastPathComponent().appendingPathComponent("WinnowDest-\(UUID().uuidString)", isDirectory: true)
     }
 
     func cleanUp() {

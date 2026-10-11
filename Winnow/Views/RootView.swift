@@ -45,7 +45,7 @@ struct EmptyStateView: View {
         ContentUnavailableView {
             Label("Insert an SD card", systemImage: "sdcard")
         } description: {
-            Text("Sift opens your camera's card as soon as it mounts.\nYou can also browse any folder of photos.")
+            Text("Winnow opens your camera's card as soon as it mounts.\nYou can also browse any folder of photos.")
         } actions: {
             Button("Open Folder…") { app.openFolderPanel() }
                 .buttonStyle(.glassProminent)

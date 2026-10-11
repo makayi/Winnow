@@ -8,7 +8,7 @@ enum CardScanner {
         case unreadable(URL)
         var errorDescription: String? {
             switch self {
-            case .unreadable(let url): "Sift can't read \(url.lastPathComponent)."
+            case .unreadable(let url): "Winnow can't read \(url.lastPathComponent)."
             }
         }
     }

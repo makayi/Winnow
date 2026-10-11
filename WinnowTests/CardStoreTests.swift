@@ -1,9 +1,9 @@
 import Foundation
 import Testing
-@testable import Sift
+@testable import Winnow
 
 @Suite struct CardStoreTests {
-    let dir = FileManager.default.temporaryDirectory.appendingPathComponent("SiftStore-\(UUID().uuidString)")
+    let dir = FileManager.default.temporaryDirectory.appendingPathComponent("WinnowStore-\(UUID().uuidString)")
 
     @Test func missingCardStartsEmpty() {
         let store = CardStore(directory: dir)

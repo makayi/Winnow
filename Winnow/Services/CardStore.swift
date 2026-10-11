@@ -11,11 +11,11 @@ struct CardState: Codable, Equatable, Sendable {
 
 final class CardStore: @unchecked Sendable {
     let directory: URL
-    private let queue = DispatchQueue(label: "Sift.CardStore")
+    private let queue = DispatchQueue(label: "Winnow.CardStore")
 
     static var defaultDirectory: URL {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        return base.appendingPathComponent("Sift/cards", isDirectory: true)
+        return base.appendingPathComponent("Winnow/cards", isDirectory: true)
     }
 
     init(directory: URL = CardStore.defaultDirectory) {

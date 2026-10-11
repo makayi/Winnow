@@ -30,6 +30,7 @@ final class AppModel {
     }
 
     init() {
+        LegacyMigration.run()
         let saved = UserDefaults.standard.double(forKey: "thumbnailSize")
         thumbnailSize = saved > 0 ? min(max(saved, Theme.minThumb), Theme.maxThumb) : 240
         watcher.onMount = { [weak self] card in self?.cardMounted(card) }
@@ -37,7 +38,7 @@ final class AppModel {
         watcher.start()
         let args = UserDefaults.standard
         if let path = args.string(forKey: "open") {
-            // `Sift -open /path/to/folder` opens a folder at launch.
+            // `Winnow -open /path/to/folder` opens a folder at launch.
             open(VolumeWatcher.sourceInfo(forFolder: URL(fileURLWithPath: path, isDirectory: true)))
         } else if let card = watcher.cards.first {
             open(card)
@@ -100,7 +101,7 @@ final class AppModel {
             do {
                 try await VolumeWatcher.eject(url)
             } catch {
-                ejectError = "Sift couldn't eject \(session.source.name). \(error.localizedDescription)"
+                ejectError = "Winnow couldn't eject \(session.source.name). \(error.localizedDescription)"
             }
         }
     }

@@ -2,7 +2,7 @@ import AppKit
 import SwiftUI
 
 /// Semantic colours. Text, fills and separators come from the system so both appearances work;
-/// only the pick / reject / success accents are Sift's own, with a deeper ink for light mode.
+/// only the pick / reject / success accents are Winnow's own, with a deeper ink for light mode.
 enum Theme {
     /// Accent fills: rings, badges, filled buttons. Same in both appearances.
     static let pick = Color(hex: 0xF5C15A)
@@ -58,10 +58,10 @@ extension Color {
 }
 
 extension View {
-    /// Liquid Glass for Sift's own floating controls (the system provides it for toolbars,
+    /// Liquid Glass for Winnow's own floating controls (the system provides it for toolbars,
     /// sidebars, inspectors and sheets). Debug snapshots, which can't capture glass, get a flat fill.
     @ViewBuilder
-    func siftGlass<S: Shape>(_ glass: Glass = .regular, in shape: S) -> some View {
+    func winnowGlass<S: Shape>(_ glass: Glass = .regular, in shape: S) -> some View {
         #if DEBUG
         if DebugFlags.flatGlass {
             background(Color(nsColor: .windowBackgroundColor).opacity(0.92), in: shape)

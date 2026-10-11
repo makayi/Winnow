@@ -2,7 +2,7 @@
 import AppKit
 import SwiftUI
 
-/// Debug-only: `Sift -open <folder> -snapshots <dir>` walks through the main screens and
+/// Debug-only: `Winnow -open <folder> -snapshots <dir>` walks through the main screens and
 /// writes a PNG of the window after each step, for checking layout without a human at the screen.
 @MainActor
 enum DebugSnapshots {

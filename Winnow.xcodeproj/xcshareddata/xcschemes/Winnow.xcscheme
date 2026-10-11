@@ -3,7 +3,7 @@
    <BuildAction parallelizeBuildables = "YES" buildImplicitDependencies = "YES">
       <BuildActionEntries>
          <BuildActionEntry buildForTesting = "YES" buildForRunning = "YES" buildForProfiling = "YES" buildForArchiving = "YES" buildForAnalyzing = "YES">
-            <BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "AA0000000000000000000010" BuildableName = "Sift.app" BlueprintName = "Sift" ReferencedContainer = "container:Sift.xcodeproj">
+            <BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "AA0000000000000000000010" BuildableName = "Winnow.app" BlueprintName = "Winnow" ReferencedContainer = "container:Winnow.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -11,20 +11,20 @@
    <TestAction buildConfiguration = "Debug" selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB" selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB" shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
          <TestableReference skipped = "NO">
-            <BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "AA0000000000000000000024" BuildableName = "SiftTests.xctest" BlueprintName = "SiftTests" ReferencedContainer = "container:Sift.xcodeproj">
+            <BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "AA0000000000000000000024" BuildableName = "WinnowTests.xctest" BlueprintName = "WinnowTests" ReferencedContainer = "container:Winnow.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction buildConfiguration = "Debug" selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB" selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB" launchStyle = "0" useCustomWorkingDirectory = "NO" ignoresPersistentStateOnLaunch = "NO" debugDocumentVersioning = "YES" debugServiceExtension = "internal" allowLocationSimulation = "YES">
       <BuildableProductRunnable runnableDebuggingMode = "0">
-         <BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "AA0000000000000000000010" BuildableName = "Sift.app" BlueprintName = "Sift" ReferencedContainer = "container:Sift.xcodeproj">
+         <BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "AA0000000000000000000010" BuildableName = "Winnow.app" BlueprintName = "Winnow" ReferencedContainer = "container:Winnow.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
    <ProfileAction buildConfiguration = "Release" shouldUseLaunchSchemeArgsEnv = "YES" savedToolIdentifier = "" useCustomWorkingDirectory = "NO" debugDocumentVersioning = "YES">
       <BuildableProductRunnable runnableDebuggingMode = "0">
-         <BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "AA0000000000000000000010" BuildableName = "Sift.app" BlueprintName = "Sift" ReferencedContainer = "container:Sift.xcodeproj">
+         <BuildableReference BuildableIdentifier = "primary" BlueprintIdentifier = "AA0000000000000000000010" BuildableName = "Winnow.app" BlueprintName = "Winnow" ReferencedContainer = "container:Winnow.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

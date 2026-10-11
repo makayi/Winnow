@@ -1,12 +1,12 @@
 import SwiftUI
 
 @main
-struct SiftApp: App {
+struct WinnowApp: App {
     @State private var app = AppModel()
     @State private var keys = KeyCommands()
 
     var body: some Scene {
-        Window("Sift", id: "main") {
+        Window("Winnow", id: "main") {
             RootView()
                 .environment(app)
                 .onAppear {
@@ -18,11 +18,11 @@ struct SiftApp: App {
         }
         .windowToolbarStyle(.unified)
         .defaultSize(width: 1440, height: 900)
-        .commands { SiftCommands(app: app) }
+        .commands { WinnowCommands(app: app) }
     }
 }
 
-struct SiftCommands: Commands {
+struct WinnowCommands: Commands {
     let app: AppModel
 
     var body: some Commands {

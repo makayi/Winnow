@@ -151,7 +151,7 @@ struct BottomPill: View {
         .monospacedDigit()
         .padding(.horizontal, 18)
         .frame(height: 40)
-        .siftGlass(.regular, in: .capsule)
+        .winnowGlass(.regular, in: .capsule)
     }
 
     private func hint(_ key: String, _ label: String) -> some View {
