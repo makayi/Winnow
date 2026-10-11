@@ -43,13 +43,37 @@ export const captions: Record<string, { title: string; sub: string }> = {
 export const cameraMoves = [
   { t: 1.3, dur: 2.4, cx: 0.55, cy: 0.48, zoom: 1.08 },   // slow push while thumbnails grow
   { t: 3.9, dur: 0.8, cx: 0.615, cy: 0.5, zoom: 1.32 },   // into the grid for picking
-  { t: 10.85, dur: 0.8, cx: 0.36, cy: 0.47, zoom: 1.55 }, // the photo, large
-  { t: 13.15, dur: 0.7, cx: 0.83, cy: 0.25, zoom: 2.25 }, // Pick button and camera settings
-  { t: 15.1, dur: 0.7, cx: 0.5, cy: 0.5, zoom: 1.0 },     // back out to the grid
-  { t: 16.3, dur: 0.8, cx: 0.615, cy: 0.5, zoom: 1.62 },  // import sheet
-  { t: 18.6, dur: 0.6, cx: 0.615, cy: 0.5, zoom: 1.78 },  // copying
-  { t: 21.7, dur: 1.2, cx: 0.615, cy: 0.5, zoom: 1.9 },   // deleted from the card
-  { t: 23.7, dur: 0.9, cx: 0.5, cy: 0.5, zoom: 1.0 },     // pull back out
+  { t: 10.75, dur: 0.8, cx: 0.36, cy: 0.47, zoom: 1.55 }, // the photo, large
+  { t: 13.1, dur: 0.7, cx: 0.83, cy: 0.25, zoom: 2.25 },  // Pick button and camera settings
+  { t: 15.0, dur: 0.75, cx: 0.84, cy: 0.16, zoom: 1.75 }, // follow the cursor up to Import
+  { t: 16.15, dur: 0.8, cx: 0.5, cy: 0.5, zoom: 1.55 },   // import sheet opens
+  { t: 17.6, dur: 0.7, cx: 0.56, cy: 0.66, zoom: 1.75 },  // toward "Import 5 photos"
+  { t: 18.6, dur: 0.6, cx: 0.5, cy: 0.5, zoom: 1.7 },     // copying
+  { t: 21.2, dur: 0.6, cx: 0.56, cy: 0.56, zoom: 1.85 },  // "Delete from card"
+  { t: 23.6, dur: 0.9, cx: 0.5, cy: 0.5, zoom: 1.0 },     // pull back out
 ];
 export const punchKeys = ["P", "X"];
 export const punchAmount = 0.035;
+
+// On-screen cursor. Points are where it arrives (fractions of the window) and when it leaves the
+// previous point; it glides between them. Clicks press and ripple.
+export const cursorPath = [
+  { t: 3.9, x: 0.6, y: 0.62, show: 0 },
+  { t: 4.0, x: 0.6, y: 0.62, show: 1 },
+  { t: 4.05, x: 0.45, y: 0.22 },  // first photo
+  { t: 5.1, x: 0.8, y: 0.22 },
+  { t: 5.58, x: 0.45, y: 0.52 },
+  { t: 6.66, x: 0.8, y: 0.52 },   // the one that gets rejected
+  { t: 7.75, x: 0.45, y: 0.82 },
+  { t: 8.83, x: 0.8, y: 0.45 },   // grid scrolls
+  { t: 9.28, x: 0.45, y: 0.76 },
+  { t: 10.5, x: 0.55, y: 0.55 },  // large view
+  { t: 13.0, x: 0.86, y: 0.09 },  // Pick button
+  { t: 14.9, x: 0.922, y: 0.03 }, // Import button in the toolbar
+  { t: 17.5, x: 0.694, y: 0.771 }, // "Import 5 photos"
+  { t: 18.9, x: 0.6, y: 0.6 },
+  { t: 21.1, x: 0.702, y: 0.602 }, // "Delete from card"
+  { t: 23.4, x: 0.702, y: 0.602, show: 1 },
+  { t: 23.7, x: 0.702, y: 0.602, show: 0 },
+];
+export const cursorClicks = [13.84, 15.98, 18.47, 21.92];

@@ -1,6 +1,6 @@
 import { Audio } from "@remotion/media";
 import { AbsoluteFill, Sequence, staticFile, useVideoConfig } from "remotion";
-import { APP_AT, CARD2_AT, captions, END_AT, keyPresses, recordingLength, scenes, TOTAL } from "./config";
+import { APP_AT, CARD2_AT, captions, cursorClicks, END_AT, keyPresses, recordingLength, scenes, TOTAL } from "./config";
 import { AppWindow } from "./scenes/AppWindow";
 import { Background } from "./scenes/Background";
 import { BrandCard } from "./scenes/BrandCard";
@@ -39,8 +39,8 @@ export const WinnowDemo: React.FC = () => {
       })}
 
       {/* A key badge for every key press in the recording. */}
-      {keyPresses.map((k, i) => {
-        const next = i + 1 < keyPresses.length ? keyPresses[i + 1].t : k.t + 1;
+      {keyPresses.filter((k) => !cursorClicks.some((c) => Math.abs(c - k.t) < 0.1)).map((k, i, shown) => {
+        const next = i + 1 < shown.length ? shown[i + 1].t : k.t + 1;
         const dur = Math.max(0.3, Math.min(0.6, next - k.t - 0.03));
         return (
           <Sequence key={`${k.t}`} name={`Key ${k.value}`} from={Math.round((APP_AT + k.t) * fps)} durationInFrames={Math.round(dur * fps)} premountFor={fps}>

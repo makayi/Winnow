@@ -133,7 +133,14 @@ final class AppModel {
         zoomed = false
         inspectorPresented = false
         mode = .grid
-        columnVisibility = visibilityBeforeLoupe
+        // Closing the inspector and showing the sidebar in the same update leaves the detail column
+        // laid out at its old width (grid and toolbar run off the right edge). Show the sidebar once
+        // the inspector has gone.
+        let restore = visibilityBeforeLoupe
+        DispatchQueue.main.async { [weak self] in
+            guard let self, self.mode == .grid else { return }
+            withAnimation(.easeInOut(duration: 0.25)) { self.columnVisibility = restore }
+        }
     }
 
     // MARK: Import

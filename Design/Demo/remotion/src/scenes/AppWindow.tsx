@@ -1,6 +1,6 @@
 import { Video } from "@remotion/media";
 import { AbsoluteFill, Easing, Img, interpolate, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
-import { cameraMoves, FONT, INK, keyPresses, punchAmount, punchKeys, VIEW } from "../config";
+import { cameraMoves, cursorClicks, cursorPath, FONT, INK, keyPresses, punchAmount, punchKeys, VIEW } from "../config";
 
 const smooth = Easing.bezier(0.65, 0, 0.35, 1);
 
@@ -20,6 +20,40 @@ const cameraAt = (t: number) => {
     }
   }
   return { ...cur, zoom: cur.zoom * (1 + punch) };
+};
+
+// Cursor position at time t: glides (0.55 s, eased) from each point to the next.
+const cursorAt = (t: number) => {
+  let x = cursorPath[0].x, y = cursorPath[0].y, show = 0;
+  for (const p of cursorPath) {
+    if (t < p.t) break;
+    const k = smooth(Math.min(1, (t - p.t) / 0.55));
+    x = x + (p.x - x) * k;
+    y = y + (p.y - y) * k;
+    if (p.show !== undefined) show = p.show;
+  }
+  return { x, y, show };
+};
+
+const Cursor: React.FC<{ t: number; px: number; py: number; size: number }> = ({ t, px, py, size }) => {
+  const click = cursorClicks.map((c) => t - c).find((d) => d >= -0.08 && d < 0.6);
+  const press = click === undefined ? 1 : 1 - 0.18 * Math.max(0, 1 - Math.abs(click) / 0.12);
+  return (
+    <>
+      {click !== undefined && click >= 0 ? (
+        <div
+          style={{
+            position: "absolute", left: px - size, top: py - size, width: size * 2, height: size * 2, borderRadius: "50%",
+            border: `${3}px solid rgba(10,132,255,${0.8 * (1 - click / 0.6)})`, background: `rgba(10,132,255,${0.15 * (1 - click / 0.6)})`,
+            scale: 0.3 + 1.2 * Math.min(1, click / 0.45),
+          }}
+        />
+      ) : null}
+      <svg width={size} height={size * 1.5} viewBox="0 0 20 30" style={{ position: "absolute", left: px - size * 0.12, top: py - size * 0.06, scale: press, transformOrigin: "top left", filter: "drop-shadow(0 2px 3px rgba(0,0,0,0.35))" }}>
+        <path d="M1.5 1.5 L1.5 23 L6.8 18 L10.4 26.5 L14 25 L10.5 16.8 L17.6 16.8 Z" fill="black" stroke="white" strokeWidth="1.6" strokeLinejoin="round" />
+      </svg>
+    </>
+  );
 };
 
 // The app recording in a floating window: springs in, the camera moves inside it, then it eases away.
@@ -59,6 +93,11 @@ export const AppWindow: React.FC = () => {
           premountFor={fps}
           style={{ position: "absolute", left, top, width: w, height: h }}
         />
+        {(() => {
+          const c = cursorAt(t);
+          if (c.show <= 0) return null;
+          return <Cursor t={t} px={left + c.x * w} py={top + c.y * h} size={30 * Math.sqrt(cam.zoom)} />;
+        })()}
       </div>
       <div
         style={{
