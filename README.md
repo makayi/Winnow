@@ -100,6 +100,10 @@ Design/
   Demo/        product demo video, built with Remotion (see Design/Demo/README.md)
 ```
 
+## License
+
+Winnow is released under the [MIT License](LICENSE).
+
 ## Notes
 
 - Winnow isn't affiliated with or endorsed by Fujifilm. Fujifilm is a trademark of FUJIFILM Corporation.
