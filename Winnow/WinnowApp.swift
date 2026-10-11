@@ -13,6 +13,7 @@ struct WinnowApp: App {
                     keys.install(app: app)
                     #if DEBUG
                     DebugSnapshots.runIfRequested(app: app)
+                    DemoAutopilot.runIfRequested(app: app)
                     #endif
                 }
         }

@@ -106,7 +106,10 @@ enum Format {
     }()
 
     static func abbreviatedPath(_ path: String) -> String {
-        (path as NSString).abbreviatingWithTildeInPath
+        #if DEBUG
+        let path = MainActor.assumeIsolated { DemoAutopilot.displayPath(path) }
+        #endif
+        return (path as NSString).abbreviatingWithTildeInPath
     }
 
     static func plural(_ n: Int, _ singular: String, _ plural: String? = nil) -> String {

@@ -73,7 +73,16 @@ final class ImportFlow: Identifiable {
         progress = ImportProgress(totalFiles: fileCount, bytesTotal: byteCount)
         let photos = self.photos
         let knownExif = session.exif
-        let options = self.options
+        var runOptions = self.options
+        var runImporter = Importer()
+        #if DEBUG
+        if DemoAutopilot.isActive, let dest = DemoAutopilot.destinationOverride {
+            runOptions.destinationPath = dest
+            runImporter = Importer(afterCopy: DemoAutopilot.importDelay)
+        }
+        #endif
+        let options = runOptions
+        let importer = runImporter
         let stop = stopSignal
         let session = self.session
 
@@ -82,7 +91,7 @@ final class ImportFlow: Identifiable {
                 let items = photos.map { p in
                     ImportItem(photo: p, captureDate: knownExif[p.id]?.dateTaken ?? ExifReader.read(p).dateTaken ?? p.fileDate)
                 }
-                let result = Importer().run(
+                let result = importer.run(
                     items: items, options: options, stop: stop,
                     progress: { p in DispatchQueue.main.async { self.progress = p } },
                     photoFinished: { r in

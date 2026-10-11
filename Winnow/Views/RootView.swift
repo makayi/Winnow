@@ -25,7 +25,7 @@ struct RootView: View {
                 EmptyStateView()
             }
         }
-        .frame(minWidth: 1000, minHeight: 680)
+        .frame(minWidth: 860, minHeight: 680)
         .sheet(item: $app.importFlow, onDismiss: { app.leaveEjectedSession() }) { flow in
             ImportSheetContainer(flow: flow)
                 .environment(app)
