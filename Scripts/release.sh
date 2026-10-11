@@ -24,12 +24,17 @@ rm -rf "$OUT/stage" && mkdir -p "$OUT/stage"
 echo "▸ Building Release"
 xcodebuild -project Winnow.xcodeproj -scheme Winnow -configuration Release -derivedDataPath "$DERIVED" \
   CODE_SIGN_STYLE=Manual CODE_SIGN_IDENTITY="$IDENTITY" DEVELOPMENT_TEAM="$TEAM_ID" \
-  ENABLE_HARDENED_RUNTIME=YES OTHER_CODE_SIGN_FLAGS="--timestamp" clean build | grep -E "error|BUILD"
+  ENABLE_HARDENED_RUNTIME=YES OTHER_CODE_SIGN_FLAGS="--timestamp" \
+  CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO clean build | grep -E "error|BUILD"
 
 APP="$DERIVED/Build/Products/Release/Winnow.app"
 VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$APP/Contents/Info.plist")
 DMG="$OUT/Winnow-$VERSION.dmg"
 codesign --verify --deep --strict "$APP"
+# Notarization rejects the debugging entitlement Xcode adds to development builds.
+if codesign -d --entitlements - "$APP" 2>/dev/null | grep -q get-task-allow; then
+  echo "The app still has com.apple.security.get-task-allow; notarization would fail." >&2; exit 1
+fi
 
 echo "▸ Making $DMG"
 ditto "$APP" "$OUT/stage/Winnow.app"
