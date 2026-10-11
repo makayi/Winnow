@@ -4,14 +4,14 @@
 hook, plus soft key clicks and a chime timed from timeline.json. No samples or third-party
 audio, so there is nothing to license.
 
-usage: make-audio.py <timeline.json> <out.wav> [title_offset=2.2]
+usage: make-audio.py <timeline.json> <out.wav> [intro_length=8.0]
 """
 import json, math, random, struct, sys, wave
 
 SR = 44100
 timeline = json.load(open(sys.argv[1]))
 out = sys.argv[2]
-T0 = float(sys.argv[3]) if len(sys.argv) > 3 else 2.2
+T0 = float(sys.argv[3]) if len(sys.argv) > 3 else 8.0
 events = timeline["events"]
 rec_len = timeline["duration"][0]["t"]
 END_IN = T0 + rec_len - 0.2
@@ -23,7 +23,7 @@ BPM = 120
 BEAT = 60 / BPM
 BAR = 4 * BEAT
 EIGHTH = BEAT / 2
-ORIGIN = T0 - BAR                        # bar 1 (intro) plays under the title card; the groove lands with the app
+ORIGIN = T0 - math.ceil(T0 / BAR) * BAR  # intro bars play under the opening cards; the groove lands with the app
 scenes = {e["value"]: T0 + e["t"] for e in events if e["kind"] == "scene"}
 LEAD_IN = scenes.get("cull", T0 + 4)
 

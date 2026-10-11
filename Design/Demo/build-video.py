@@ -11,7 +11,9 @@ timeline = json.load(open(f"{demo}/timeline.json"))
 events = timeline["events"]
 rec_len = timeline["duration"][0]["t"]
 
-T0 = 2.2                     # recording starts as the title card fades
+INTRO = ["intro-1", "intro-2", "intro-3", "title"]  # one bar each at 120 bpm
+CARD = 2.0
+T0 = CARD * len(INTRO)       # recording starts as the last intro card fades
 END_IN = T0 + rec_len - 0.2  # end card fades in over the last frames
 TOTAL = END_IN + 3.6
 WIN_X, WIN_Y, WIN_W, WIN_H = 40, 560, 1000, 958
@@ -58,7 +60,9 @@ for i, k in enumerate(keys):
     still(f"key-{KEY_FILES[k['value']]}", T0 + k["t"], dur, fade_in=0.06, fade_out=0.12)
 
 still("brand", T0, END_IN - T0 + 0.4, fade_in=0.4, fade_out=0)
-still("title", 0, T0 + 0.4, fade_in=0, fade_out=0.45)
+for i, name in enumerate(INTRO):
+    last = i == len(INTRO) - 1
+    still(name, i * CARD, CARD + (0.4 if last else 0.25), fade_in=0 if i == 0 else 0.25, fade_out=0.45 if last else 0.25)
 still("end", END_IN, TOTAL - END_IN, fade_in=0.45, fade_out=0)
 
 graph = [f"[{bg}:v][{shadow}:v]overlay=0:0[base0]", f"[base0][win]overlay={WIN_X}:{WIN_Y}:eof_action=repeat[base1]"]

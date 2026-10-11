@@ -1,6 +1,6 @@
 # Product demo
 
-A 31-second portrait (1080×1920) demo, recorded from the real app.
+A 37-second portrait (1080×1920) demo, recorded from the real app.
 
 1. **Record.** A debug build plays a scripted walkthrough (`Winnow/Support/DemoAutopilot.swift`) on a scratch copy of a card and records the window with ScreenCaptureKit. The walkthrough imports and deletes for real, so only point it at a copy.
 

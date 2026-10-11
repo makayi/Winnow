@@ -59,19 +59,14 @@ func drawIcon(_ c: CGContext, _ rect: CGRect) {
 
 func background(_ c: CGContext) {
     let g = CGGradient(colorsSpace: CGColorSpace(name: CGColorSpace.sRGB),
-                       colors: [NSColor(srgbRed: 0.976, green: 0.957, blue: 0.918, alpha: 1).cgColor,
-                                NSColor(srgbRed: 0.918, green: 0.886, blue: 0.831, alpha: 1).cgColor] as CFArray, locations: [0, 1])!
+                       colors: [NSColor.white.cgColor, NSColor(srgbRed: 0.945, green: 0.949, blue: 0.957, alpha: 1).cgColor] as CFArray, locations: [0.35, 1])!
     c.drawLinearGradient(g, start: .zero, end: CGPoint(x: 0, y: H), options: [])
-    // A faint amber glow behind the window, like the lightbox.
-    let glow = CGGradient(colorsSpace: CGColorSpace(name: CGColorSpace.sRGB),
-                          colors: [amber.withAlphaComponent(0.22).cgColor, amber.withAlphaComponent(0).cgColor] as CFArray, locations: [0, 1])!
-    c.drawRadialGradient(glow, startCenter: CGPoint(x: W / 2, y: win.midY), startRadius: 0, endCenter: CGPoint(x: W / 2, y: win.midY), endRadius: 900, options: [])
 }
 
 canvas("bg") { background($0) }
 
 canvas("shadow") { c in
-    c.setShadow(offset: CGSize(width: 0, height: 24), blur: 60, color: NSColor(white: 0, alpha: 0.28).cgColor)
+    c.setShadow(offset: CGSize(width: 0, height: 30), blur: 70, color: NSColor(white: 0, alpha: 0.22).cgColor)
     c.setFillColor(NSColor(white: 0.5, alpha: 1).cgColor)
     c.addPath(CGPath(roundedRect: win.insetBy(dx: 6, dy: 6), cornerWidth: winRadius, cornerHeight: winRadius, transform: nil))
     c.fillPath()
@@ -99,29 +94,42 @@ canvas("brand") { c in
     _ = text("Winnow", font: .systemFont(ofSize: 34, weight: .semibold), color: ink, centerX: x + iconSize + 16 + label.size().width / 2, top: y + 10, width: label.size().width + 10)
 }
 
-func card(_ name: String, headline: String, sub: String, footer: String?) {
+/// Big statement card, text only, centred.
+func statement(_ name: String, _ headline: String, _ sub: String? = nil) {
+    canvas(name) { c in
+        background(c)
+        let h = text(headline, font: .systemFont(ofSize: 74, weight: .bold), color: ink, centerX: W / 2, top: 780, width: W - 160, lineSpacing: 6)
+        if let sub { _ = text(sub, font: .systemFont(ofSize: 40, weight: .regular), color: ink.withAlphaComponent(0.55), centerX: W / 2, top: 780 + h + 36, width: W - 160) }
+    }
+}
+
+/// Card with the app icon and name.
+func brandCard(_ name: String, headline: String, sub: String?, footer: String?) {
     canvas(name) { c in
         background(c)
         let iconSize: CGFloat = 360
         drawIcon(c, CGRect(x: (W - iconSize) / 2, y: 520, width: iconSize, height: iconSize))
         _ = text("Winnow", font: .systemFont(ofSize: 96, weight: .bold), color: ink, centerX: W / 2, top: 930)
         _ = text(headline, font: .systemFont(ofSize: 46, weight: .medium), color: ink.withAlphaComponent(0.72), centerX: W / 2, top: 1070, lineSpacing: 8)
-        if let sub = Optional(sub), !sub.isEmpty {
-            _ = text(sub, font: .systemFont(ofSize: 34, weight: .regular), color: ink.withAlphaComponent(0.5), centerX: W / 2, top: 1240)
-        }
+        if let sub { _ = text(sub, font: .systemFont(ofSize: 34, weight: .regular), color: ink.withAlphaComponent(0.5), centerX: W / 2, top: 1240) }
         if let footer { _ = text(footer, font: .systemFont(ofSize: 30, weight: .medium), color: ink.withAlphaComponent(0.45), centerX: W / 2, top: 1640) }
     }
 }
 
-card("title", headline: "See every shot big.\nKeep only the good ones.", sub: "", footer: nil)
-card("end", headline: "Big previews. One-key culling.\nVerified imports.", sub: "Straight off your camera's SD card", footer: "A native app for macOS Tahoe")
+// The problem, in plain words. Claims checked: Lightroom Classic has no option to delete photos from a
+// card after import (long-standing Adobe feature request); Apple Photos imports only into its own library.
+statement("intro-1", "400 photos\non your card.", "You want maybe 20.")
+statement("intro-2", "Lightroom Classic can't\ndelete them from your card\nafter import.")
+statement("intro-3", "Apple Photos puts\neverything into its\nown library.")
+brandCard("title", headline: "Pick your best,\nright off the card.", sub: nil, footer: nil)
+brandCard("end", headline: "See every shot big.\nPick your favourites.\nCopy only those.", sub: nil, footer: "Made for Mac")
 
 let captions: [(String, String, String)] = [
-    ("grow", "Big previews, straight\noff the SD card", "No import needed to see your shots"),
-    ("cull", "Cull with one key", "P to pick  ·  X to reject"),
-    ("loupe", "Look closer when it counts", "Film simulation, lens and exposure"),
-    ("import", "Import only the keepers", "Every copy checked against the card"),
-    ("delete", "Then clear them off the card", "Only verified photos. It never formats."),
+    ("grow", "See every shot big", "Right off the SD card. Nothing to import first."),
+    ("cull", "Pick your favourites\nwith one key", "Press P to keep a photo, X to skip it"),
+    ("loupe", "Look closer before\nyou decide", "With the camera settings for every shot"),
+    ("import", "Copy only the ones\nyou picked", "Into your own folders. Every copy double-checked."),
+    ("delete", "Then free up your card", "Winnow only deletes photos it copied safely"),
 ]
 for (id, headline, sub) in captions {
     canvas("cap-\(id)") { c in
