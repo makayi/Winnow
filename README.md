@@ -11,20 +11,16 @@
 
 ---
 
-You shoot 400 frames and want maybe 20. Getting to those 20 on a Mac is harder than it should be:
+You shoot 400 frames and want maybe 20. Winnow is for the step in between: choosing those 20 before anything leaves the card.
 
-- **Finder** thumbnails are tiny, and ⌘+ zooms the window instead of the photos.
-- **Photos** makes you import everything into its library first, and getting files back out to edit in Lightroom is a chore.
-- **Lightroom's import dialog** shows postage-stamp previews.
-
-Winnow opens your card the moment you insert it and shows every shot big. Pick the keepers with one key, then copy only those, RAF and JPG together, into your own folders, ready to edit. Every copy is checked against the card before anything is deleted.
+It opens your card the moment you insert it and shows every shot big. Pick the keepers with one key, then copy only those, RAF and JPG together, into your own folders, ready to edit in Lightroom or anything else. There's no library to import into or export from, and every copy is checked against the card before anything is deleted.
 
 ## Features
 
 - **Big previews, straight off the card.** Thumbnails up to 420 pt wide, resizable with a slider or ⌘= / ⌘-. Nothing is imported until you say so.
 - **RAF + JPG as one photo.** Pairs are grouped automatically, and RAF-only and JPG-only shooting both work.
 - **One-key culling.** P to pick, X to reject, U to clear, arrow keys to move. Flags are saved per card, so they survive ejecting and reinserting it.
-- **A large view for the close calls.** Fit or 100% (decoded from the RAW), a filmstrip, and the shutter, aperture, ISO, focal length, lens and **Fujifilm film simulation** for every shot.
+- **A large view for the close calls.** Fit or 100% (decoded from the RAF when there is one), a filmstrip, and the shutter, aperture, ISO, focal length, lens and **Fujifilm film simulation** for every shot.
 - **Verified import.** Copy into folders by date, by card folder, or all in one, with RAF + JPG, RAF only or JPG only. Every file is checked with a SHA-256 hash against the card before it's kept.
 - **Free up your card safely.** After an import, Winnow offers to delete only the photos it copied and verified, plus your rejects if you tick the box. It never formats the card or touches anything else on it.
 - **Made for the Mac.** Native SwiftUI with Apple's Liquid Glass, light and dark mode, and no dependencies.
@@ -75,7 +71,7 @@ The first time Winnow reads a card, macOS asks for permission to access removabl
 
 ## How your photos are kept safe
 
-- **Copies are verified.** Each file is copied to a hidden partial file and hashed: what was read from the card is compared with what was written to disk, read back past the cache. On a mismatch Winnow retries once, then reports the photo as failed. Only a verified copy is renamed into place, keeping its original dates.
+- **Copies are verified.** Each file is copied to a hidden partial file and hashed: what was read from the card is compared with what was written to disk, read back with caching turned off. On a mismatch Winnow retries once, then reports the photo as failed. Only a verified copy is renamed into place, keeping its original dates.
 - **Nothing is overwritten.** If a file with the same name and contents is already in the destination, it counts as already imported. A different file with the same name is saved with a `-1`, `-2` suffix.
 - **Stopping or pulling the card is safe.** Finished copies stay, no partial files are left behind, and Winnow lists any photos that didn't make it.
 - **Deleting is narrow.** Only source files whose copies were verified in that import can be deleted. A file is skipped if its size has changed since it was copied. Winnow never formats the card.
