@@ -5,7 +5,8 @@ import { AppWindow } from "./scenes/AppWindow";
 import { Background } from "./scenes/Background";
 import { BrandCard } from "./scenes/BrandCard";
 import { Caption } from "./scenes/Caption";
-import { IntroCard } from "./scenes/IntroCard";
+import { CapeTownEnding } from "./scenes/CapeTownEnding";
+import { PhotoWall } from "./scenes/PhotoWall";
 import { KeyBadge } from "./scenes/KeyBadge";
 
 export const WinnowDemo: React.FC = () => {
@@ -14,8 +15,8 @@ export const WinnowDemo: React.FC = () => {
     <AbsoluteFill>
       <Background />
 
-      <Sequence name="Hook" durationInFrames={Math.round(CARD2_AT * fps)} premountFor={fps}>
-        <IntroCard title={"400 photos\non your card."} sub="You want maybe 20." />
+      <Sequence name="Photo wall" durationInFrames={Math.round((CARD2_AT + 0.3) * fps)} premountFor={fps}>
+        <PhotoWall />
       </Sequence>
       <Sequence name="Title" from={Math.round(CARD2_AT * fps)} durationInFrames={Math.round((APP_AT - CARD2_AT + 0.2) * fps)} premountFor={fps}>
         <BrandCard line={"Pick your best,\nright off the card."} />
@@ -48,8 +49,8 @@ export const WinnowDemo: React.FC = () => {
         );
       })}
 
-      <Sequence name="End card" from={Math.round((END_AT + 0.1) * fps)} durationInFrames={Math.round((TOTAL - END_AT - 0.1) * fps)} premountFor={fps}>
-        <BrandCard line={"See every shot big.\nKeep only your favourites.\nIn your own folders, ready to edit."} footer="Made for Mac" exit={false} />
+      <Sequence name="Cape Town ending" from={Math.round((END_AT - 0.1) * fps)} durationInFrames={Math.round((TOTAL - END_AT + 0.1) * fps)} premountFor={fps}>
+        <CapeTownEnding line={"See every shot big.\nKeep only your favourites."} footer="Made for Mac" />
       </Sequence>
 
       <Audio src={staticFile("music.wav")} premountFor={fps} />
