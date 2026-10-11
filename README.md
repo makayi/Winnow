@@ -9,6 +9,18 @@
   A native Mac app for macOS Tahoe.
 </p>
 
+<p align="center">
+  <a href="https://github.com/makayi/Winnow/releases/latest"><b>⬇︎ Download Winnow for Mac</b></a><br>
+  <sub>macOS 26 or later · Apple silicon · signed and notarized by Apple</sub>
+</p>
+
+<p align="center">
+  <a href="https://github.com/makayi/Winnow/releases/download/v1.0/winnow-demo.mp4">
+    <img src="Design/Demo/poster.jpg" width="600" alt="Winnow demo video: picking photos with one key, and the Cape Town harbour end card">
+  </a><br>
+  <sub>▶︎ Watch the 34-second demo</sub>
+</p>
+
 ---
 
 You shoot 400 frames and want maybe 20. Winnow is for the step in between: choosing those 20 before anything leaves the card.
@@ -50,9 +62,11 @@ With the mouse: click a photo to select it, click it again to cycle its flag (no
 
 Winnow was built and tested with a Fujifilm X-E5. It reads any card with a `DCIM/` folder, and **File › Open Folder…** browses any folder of photos.
 
-## Build and run
+## Install
 
-There's no release build yet, so build it from source:
+Download **Winnow-1.0.dmg** from the [latest release](https://github.com/makayi/Winnow/releases/latest), open it and drag Winnow into Applications. It's signed with a Developer ID and notarized by Apple, so it opens without warnings.
+
+## Build from source
 
 ```sh
 git clone https://github.com/makayi/Winnow.git
