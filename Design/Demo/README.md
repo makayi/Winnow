@@ -1,6 +1,6 @@
 # Product demo
 
-A 32-second portrait (1080×1920) demo, recorded from the real app.
+A 31-second portrait (1080×1920) demo, recorded from the real app.
 
 1. **Record.** A debug build plays a scripted walkthrough (`Winnow/Support/DemoAutopilot.swift`) on a scratch copy of a card and records the window with ScreenCaptureKit. The walkthrough imports and deletes for real, so only point it at a copy.
 
@@ -20,6 +20,8 @@ A 32-second portrait (1080×1920) demo, recorded from the real app.
    /tmp/make-assets /tmp/edit "$PWD/build/DerivedData/Build/Products/Debug/Winnow.app"
    ```
 
-3. **Compose:** `python3 Design/Demo/build-video.py /tmp/demo /tmp/edit winnow-demo.mp4`
+3. **Soundtrack:** `python3 Design/Demo/make-audio.py /tmp/demo/timeline.json /tmp/edit/soundtrack.wav` synthesises an original instrumental bed, plus a key click on each key press and chimes when the import lands and on the end card. It's all generated in code, so there's nothing to license.
+
+4. **Compose:** `python3 Design/Demo/build-video.py /tmp/demo /tmp/edit winnow-demo.mp4 /tmp/edit/soundtrack.wav` (the audio is normalised to −16 LUFS).
 
 Captions are in `make-assets.swift`; the timing comes from `timeline.json`.

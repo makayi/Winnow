@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """Composes the portrait product demo from recording.mov, timeline.json and the rendered assets.
 
-usage: build-video.py <demo dir with recording.mov + timeline.json> <assets dir> <output.mp4>
+usage: build-video.py <demo dir with recording.mov + timeline.json> <assets dir> <output.mp4> [soundtrack.wav]
 """
 import json, subprocess, sys
 
 demo, assets, output = sys.argv[1:4]
+soundtrack = sys.argv[4] if len(sys.argv) > 4 else None
 timeline = json.load(open(f"{demo}/timeline.json"))
 events = timeline["events"]
 rec_len = timeline["duration"][0]["t"]
@@ -69,7 +70,14 @@ for n, (label, x, y) in enumerate(layers):
 filters += graph
 filters.append(f"[{prev}]format=yuv420p,trim=duration={TOTAL:.3f}[outv]")
 
-cmd = ["ffmpeg", "-v", "error", "-y", *inputs, "-filter_complex", ";".join(filters), "-map", "[outv]",
+audio = []
+if soundtrack:
+    a = add_input(["-i", soundtrack])
+    # Normalise to -16 LUFS, a common target for social video.
+    filters.append(f"[{a}:a]loudnorm=I=-16:TP=-1.5:LRA=11,aresample=48000,atrim=duration={TOTAL:.3f}[outa]")
+    audio = ["-map", "[outa]", "-c:a", "aac", "-b:a", "192k"]
+
+cmd = ["ffmpeg", "-v", "error", "-y", *inputs, "-filter_complex", ";".join(filters), "-map", "[outv]", *audio,
        "-r", "30", "-c:v", "libx264", "-preset", "slow", "-crf", "18", "-profile:v", "high", "-movflags", "+faststart", output]
 subprocess.run(cmd, check=True)
 print(f"wrote {output} ({TOTAL:.1f}s, {len(keys)} key badges, {len(scenes)} captions)")
