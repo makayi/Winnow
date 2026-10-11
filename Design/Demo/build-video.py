@@ -1,19 +1,25 @@
 #!/usr/bin/env python3
 """Composes the portrait product demo from recording.mov, timeline.json and the rendered assets.
 
-usage: build-video.py <demo dir with recording.mov + timeline.json> <assets dir> <output.mp4> [soundtrack.wav]
-"""
-import json, subprocess, sys
+usage: build-video.py <demo dir> <assets dir> <output.mp4> [soundtrack.wav] [--cards 0,2.065 --t0 3.88]
 
-demo, assets, output = sys.argv[1:4]
-soundtrack = sys.argv[4] if len(sys.argv) > 4 else None
+--cards are the start times of the intro cards and --t0 is when the app footage starts, so both
+can be placed on the music's beats.
+"""
+import argparse, json, subprocess
+
+ap = argparse.ArgumentParser()
+ap.add_argument("demo"); ap.add_argument("assets"); ap.add_argument("output"); ap.add_argument("soundtrack", nargs="?")
+ap.add_argument("--cards", default="0,2"); ap.add_argument("--t0", type=float, default=4.0)
+args = ap.parse_args()
+demo, assets, output, soundtrack = args.demo, args.assets, args.output, args.soundtrack
 timeline = json.load(open(f"{demo}/timeline.json"))
 events = timeline["events"]
 rec_len = timeline["duration"][0]["t"]
 
-INTRO = ["intro-1", "title"]  # one bar each at 120 bpm
-CARD = 2.0
-T0 = CARD * len(INTRO)       # recording starts as the last intro card fades
+INTRO = ["intro-1", "title"]
+CARD_STARTS = [float(x) for x in args.cards.split(",")]
+T0 = args.t0                 # recording starts as the last intro card fades
 END_IN = T0 + rec_len - 0.2  # end card fades in over the last frames
 TOTAL = END_IN + 3.6
 WIN_X, WIN_Y, WIN_W, WIN_H = 40, 560, 1000, 958
@@ -62,7 +68,9 @@ for i, k in enumerate(keys):
 still("brand", T0, END_IN - T0 + 0.4, fade_in=0.4, fade_out=0)
 for i, name in enumerate(INTRO):
     last = i == len(INTRO) - 1
-    still(name, i * CARD, CARD + (0.4 if last else 0.25), fade_in=0 if i == 0 else 0.25, fade_out=0.45 if last else 0.25)
+    start = CARD_STARTS[i]
+    end = T0 if last else CARD_STARTS[i + 1]
+    still(name, start, end - start + (0.4 if last else 0.2), fade_in=0 if i == 0 else 0.2, fade_out=0.45 if last else 0.2)
 still("end", END_IN, TOTAL - END_IN, fade_in=0.45, fade_out=0)
 
 graph = [f"[{bg}:v][{shadow}:v]overlay=0:0[base0]", f"[base0][win]overlay={WIN_X}:{WIN_Y}:eof_action=repeat[base1]"]
