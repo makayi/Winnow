@@ -20,7 +20,7 @@ A 31-second portrait (1080×1920) demo, recorded from the real app.
    /tmp/make-assets /tmp/edit "$PWD/build/DerivedData/Build/Products/Debug/Winnow.app"
    ```
 
-3. **Soundtrack:** `python3 Design/Demo/make-audio.py /tmp/demo/timeline.json /tmp/edit/soundtrack.wav` synthesises an original instrumental bed, plus a key click on each key press and chimes when the import lands and on the end card. It's all generated in code, so there's nothing to license.
+3. **Soundtrack:** `python3 Design/Demo/make-audio.py /tmp/demo/timeline.json /tmp/edit/soundtrack.wav` composes an upbeat 120 bpm cue in D major (four-on-the-floor drums, bass, chord stabs and a lead hook), plus soft key clicks and a chime when the import lands. It's all generated in code, so there's nothing to license.
 
 4. **Compose:** `python3 Design/Demo/build-video.py /tmp/demo /tmp/edit winnow-demo.mp4 /tmp/edit/soundtrack.wav` (the audio is normalised to −16 LUFS).
 
