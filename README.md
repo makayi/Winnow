@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="Design/Demo/remotion/public/icon.png" width="160" alt="Winnow app icon: a strip of film with one frame lit amber">
+  <img src="Design/Demo/remotion/public/icon.png" width="160" alt="Winnow app icon: a white SD card with a photo on it, on black">
 </p>
 
 <h1 align="center">Winnow</h1>
