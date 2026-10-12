@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+  <channel>
+    <title>Winnow</title>
+    <link>https://github.com/makayi/Winnow</link>
+    <item>
+      <title>Winnow 1.0.1</title>
+      <pubDate>Mon, 12 Oct 2026 12:51:21 +0000</pubDate>
+      <sparkle:version>2</sparkle:version>
+      <sparkle:shortVersionString>1.0.1</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+      <sparkle:releaseNotesLink>https://github.com/makayi/Winnow/releases/tag/v1.0.1</sparkle:releaseNotesLink>
+      <enclosure url="https://github.com/makayi/Winnow/releases/download/v1.0.1/Winnow-1.0.1.dmg" type="application/octet-stream" sparkle:edSignature="cEWOM/8Y9zMse5uzkycCyGpk7y+5LIqzlivX6RA5cy6SPKajiMHvw60z62WkLJNPgF2oZFXjj20+jmcs5EMqDg==" length="3049554"/>
+    </item>
+  </channel>
+</rss>

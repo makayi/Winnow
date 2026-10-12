@@ -6,7 +6,10 @@
 #   2. Notary credentials saved under the profile name "winnow":
 #        xcrun notarytool store-credentials winnow --apple-id <you@example.com> --team-id 9Q6VRKYMZM
 #
-# Usage: Scripts/release.sh            (version comes from MARKETING_VERSION)
+#   3. The Sparkle signing key in your keychain (account "winnow"), made once with Sparkle's generate_keys.
+#
+# Usage: Scripts/release.sh   (version from MARKETING_VERSION; bump CURRENT_PROJECT_VERSION every release,
+#                              since Sparkle compares build numbers)
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -29,6 +32,17 @@ xcodebuild -project Winnow.xcodeproj -scheme Winnow -configuration Release -deri
 
 APP="$DERIVED/Build/Products/Release/Winnow.app"
 VERSION=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$APP/Contents/Info.plist")
+BUILD=$(/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "$APP/Contents/Info.plist")
+
+echo "▸ Signing Sparkle's helpers for notarization"
+FW="$APP/Contents/Frameworks/Sparkle.framework"
+SIGN=(codesign -f -s "$IDENTITY" -o runtime --timestamp)
+"${SIGN[@]}" "$FW/Versions/B/XPCServices/Installer.xpc"
+"${SIGN[@]}" --preserve-metadata=entitlements "$FW/Versions/B/XPCServices/Downloader.xpc"
+"${SIGN[@]}" "$FW/Versions/B/Autoupdate"
+"${SIGN[@]}" "$FW/Versions/B/Updater.app"
+"${SIGN[@]}" "$FW"
+"${SIGN[@]}" "$APP"
 DMG="$OUT/Winnow-$VERSION.dmg"
 codesign --verify --deep --strict "$APP"
 # Notarization rejects the debugging entitlement Xcode adds to development builds.
@@ -50,4 +64,28 @@ xcrun stapler staple "$DMG"
 echo "▸ Checking"
 spctl -a -t open --context context:primary-signature -vv "$DMG"
 shasum -a 256 "$DMG"
+
+echo "▸ Writing appcast.xml"
+SPARKLE_BIN=$(dirname "$(find "$DERIVED/SourcePackages/artifacts" -name sign_update -type f | head -1)")
+SIG_ATTRS=$("$SPARKLE_BIN/sign_update" --account winnow "$DMG")   # sparkle:edSignature="…" length="…"
+PUBDATE=$(LC_ALL=C date -u "+%a, %d %b %Y %H:%M:%S +0000")
+cat > appcast.xml <<XML
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+  <channel>
+    <title>Winnow</title>
+    <link>https://github.com/makayi/Winnow</link>
+    <item>
+      <title>Winnow $VERSION</title>
+      <pubDate>$PUBDATE</pubDate>
+      <sparkle:version>$BUILD</sparkle:version>
+      <sparkle:shortVersionString>$VERSION</sparkle:shortVersionString>
+      <sparkle:minimumSystemVersion>26.0</sparkle:minimumSystemVersion>
+      <sparkle:releaseNotesLink>https://github.com/makayi/Winnow/releases/tag/v$VERSION</sparkle:releaseNotesLink>
+      <enclosure url="https://github.com/makayi/Winnow/releases/download/v$VERSION/Winnow-$VERSION.dmg" type="application/octet-stream" $SIG_ATTRS/>
+    </item>
+  </channel>
+</rss>
+XML
 echo "Done: $DMG"
+echo "Next: publish the GitHub release v$VERSION with $DMG, then commit and push appcast.xml."

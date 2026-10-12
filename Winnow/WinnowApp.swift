@@ -5,6 +5,10 @@ struct WinnowApp: App {
     @State private var app = AppModel()
     @State private var keys = KeyCommands()
 
+    init() {
+        _ = Updater.shared
+    }
+
     var body: some Scene {
         Window("Winnow", id: "main") {
             RootView()
@@ -19,7 +23,10 @@ struct WinnowApp: App {
         }
         .windowToolbarStyle(.unified)
         .defaultSize(width: 1440, height: 900)
-        .commands { WinnowCommands(app: app) }
+        .commands {
+            WinnowCommands(app: app)
+            CheckForUpdatesCommand()
+        }
     }
 }
 

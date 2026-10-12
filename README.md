@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/makayi/Winnow/releases/download/v1.0/winnow-demo.mp4">
+  <a href="https://github.com/makayi/Winnow/releases/latest/download/winnow-demo.mp4">
     <img src="Design/Demo/poster.jpg" width="600" alt="Winnow demo video: picking photos with one key, and the Cape Town harbour end card">
   </a><br>
   <sub>▶︎ Watch the 34-second demo</sub>
@@ -35,7 +35,7 @@ It opens your card the moment you insert it and shows every shot big. Pick the k
 - **A large view for the close calls.** Fit or 100% (decoded from the RAF when there is one), a filmstrip, and the shutter, aperture, ISO, focal length, lens and **Fujifilm film simulation** for every shot.
 - **Verified import.** Copy into folders by date, by card folder, or all in one, with RAF + JPG, RAF only or JPG only. Every file is checked with a SHA-256 hash against the card before it's kept.
 - **Free up your card safely.** After an import, Winnow offers to delete only the photos it copied and verified, plus your rejects if you tick the box. It never formats the card or touches anything else on it.
-- **Made for the Mac.** Native SwiftUI with Apple's Liquid Glass, light and dark mode, and no dependencies.
+- **Made for the Mac.** Native SwiftUI with Apple's Liquid Glass and light and dark mode. Updates itself with [Sparkle](https://sparkle-project.org), its only dependency.
 
 ## Keyboard
 
@@ -64,7 +64,7 @@ Winnow was built and tested with a Fujifilm X-E5. It reads any card with a `DCIM
 
 ## Install
 
-Download **Winnow-1.0.dmg** from the [latest release](https://github.com/makayi/Winnow/releases/latest), open it and drag Winnow into Applications. It's signed with a Developer ID and notarized by Apple, so it opens without warnings.
+Download the DMG from the [latest release](https://github.com/makayi/Winnow/releases/latest), open it and drag Winnow into Applications. It's signed with a Developer ID and notarized by Apple, so it opens without warnings. After that, Winnow keeps itself up to date (**Winnow › Check for Updates…**).
 
 ## Build from source
 
@@ -97,6 +97,7 @@ These rules are covered by the unit tests in `WinnowTests/`, including a deliber
 - **Previews** come from the camera's own JPEG: the JPG sibling, or the preview embedded in the RAF, whichever is fewer bytes to read from the card. On an X-E5 the embedded preview is about a third the size of the JPG. At most four reads run at once, and reads for photos that scroll out of view are cancelled.
 - **Film simulation** is read from the Fujifilm MakerNote in each file's EXIF.
 - **Flags and import records** are stored per card, keyed by the card's volume ID, in `~/Library/Application Support/Winnow/`.
+- **Updates** come through [Sparkle](https://sparkle-project.org): Winnow checks `appcast.xml` in this repo once a day, and each update is signed with an EdDSA key, so it only installs builds signed by the developer.
 - **App Sandbox is off**, because Winnow needs to read any removable volume and write to any folder you choose. Hardened runtime is on for Release builds.
 
 ## Project layout

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Sparkle: where to look for updates, and the public half of the key updates are signed with. -->
+	<key>SUFeedURL</key>
+	<string>https://raw.githubusercontent.com/makayi/Winnow/main/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>zMJRT/3rQBHNLF8CrYbyES9XJyTqMTNBCyewSzCIZMY=</string>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
+	<key>SUScheduledCheckInterval</key>
+	<integer>86400</integer>
+</dict>
+</plist>
